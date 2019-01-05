@@ -1,5 +1,5 @@
 # Cash flow - Springboot backend 
-This is a pet project for cash flow management whose aim is to practice microservices architecture development
+This is a pet project for cash flow management whose goal is to practice microservices architecture development.
 The idea is to transform the excel spreadsheet found [here](https://luz.vc/planilhas-empresariais/planilha-de-fluxo-de-caixa-excel) 
 in a webapp, using spring boot to implement the microservice on the backend and Angular on the frontend
 
@@ -10,13 +10,13 @@ in a webapp, using spring boot to implement the microservice on the backend and 
 - Angular/TypeScript 
 
 
-## How to run with the development enviroment
+## How to run with the development environment
 
 - Ensure a properly configured MySQL database instance is running and create a new database to be used by this application  
 - edit the properties __spring.datasource.url__, __spring.datasource.username__, __spring.datasource.password__ in the file  **src/main/resources/application.properties** and ensure they are properly configured for your enviroment. Property names are self explanatory.
 - If you have apache maven (3.1+) on your system's classpath, just run:
 > mvn spring-boot:run 
-- otherwise run and if you are on a linux box:
+- otherwise anf if you are on a linux box, run:
 > ./mvnw spring-boot:run
 - ... on a windows machine
 > ./mvnw.bat spring-boot:run
