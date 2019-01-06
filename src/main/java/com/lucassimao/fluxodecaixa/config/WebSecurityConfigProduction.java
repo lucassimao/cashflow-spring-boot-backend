@@ -28,7 +28,6 @@ public class WebSecurityConfigProduction extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
                 .antMatchers("/css/**", "/js/**").permitAll()
-                .antMatchers(HttpMethod.DELETE,"/bookEntryGroups/**")
                 .anyRequest().authenticated()
                 .and()
                     .formLogin()
