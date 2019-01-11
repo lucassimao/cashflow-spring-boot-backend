@@ -51,7 +51,9 @@ in a webapp, using spring boot to implement the microservice on the backend and 
 
 
 ## Tips
-1. Authenticatig using curl
+1. Creating a generic user
+   > curl -i -H "content-type: application/json" -d '{"name":"Lucas Simão","email":"lsimaocosta@gmail.com","password":"123"}'  -v http://localhost:8080/users
+2. Authenticatig as admin using curl in development enviroment
    > curl -i -H "content-type: application/json" -d '{"username":"admin@mycashflow.com","password":"123"}'  -v http://localhost:8080/login
-2. Beteween the response headers from the previous request, will be the Authorization one. Just send the header value in any request
+3. Beteween the response headers from the previous request, will be the Authorization one. Just send the header value in any request
    > curl -i -H "content-type:application/json" -H "authorization: $AUTHORIZATION_TOKEN" -d '{"type":"Expense","description":"credit card" }'  http://localhost:8080/bookEntryGroups

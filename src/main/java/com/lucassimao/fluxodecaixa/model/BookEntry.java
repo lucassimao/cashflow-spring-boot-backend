@@ -19,7 +19,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import org.javamoney.moneta.Money;
 
 @Entity
-public class BookEntry{
+public class BookEntry extends TenantEntity{
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
@@ -44,17 +44,6 @@ public class BookEntry{
 
 
     public BookEntry() {
-    }
-
-    public BookEntry(Long id, BookEntryGroup bookEntryGroup, String description, LocalDate date, User user, Money value, LocalDateTime dateCreated, LocalDateTime dateUpdated) {
-        this.id = id;
-        this.bookEntryGroup = bookEntryGroup;
-        this.description = description;
-        this.date = date;
-        this.user = user;
-        this.value = value;
-        this.dateCreated = dateCreated;
-        this.dateUpdated = dateUpdated;
     }
 
     public Long getId() {

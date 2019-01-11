@@ -13,7 +13,7 @@ import com.lucassimao.fluxodecaixa.converter.BookEntryTypeConverter;
 
 
 @Entity
-public class BookEntryGroup{
+public class BookEntryGroup extends TenantEntity{
 
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
@@ -25,12 +25,6 @@ public class BookEntryGroup{
 
 
     public BookEntryGroup() {
-    }
-
-    public BookEntryGroup(Long id, BookEntryType type, String description) {
-        this.id = id;
-        this.type = type;
-        this.description = description;
     }
 
     public Long getId() {

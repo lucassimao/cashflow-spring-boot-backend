@@ -1,11 +1,11 @@
 package com.lucassimao.fluxodecaixa.config;
 
-import java.util.Arrays;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
 
 import com.lucassimao.fluxodecaixa.model.User;
+import com.lucassimao.fluxodecaixa.repositories.CustomUserRepository;
 import com.lucassimao.fluxodecaixa.repositories.UserRepository;
 import com.lucassimao.fluxodecaixa.service.MyUserDetailsService;
 
@@ -15,17 +15,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.Profiles;
+import org.springframework.data.repository.CrudRepository;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -57,22 +56,24 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter{
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-        .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            .sessionManagement()
+                .disable()
+                // .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                // .and()
+            .authorizeRequests()
+                .antMatchers(HttpMethod.POST, "/users/**").permitAll()
+                .antMatchers(HttpMethod.POST, "/login").permitAll()
+                .anyRequest().authenticated()
                 .and()
-        .authorizeRequests()
-            .antMatchers(HttpMethod.POST, "/login").permitAll()
-            .anyRequest().authenticated()
-            .and()
-                .addFilterBefore(new JWTLoginFilter("/login", authenticationManager()),UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(new JWTAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)      
-        .logout()
-            .permitAll()        
-        .and()
-            .httpBasic()
-            .and().cors()
-            .and()
-            .csrf().disable();
+                    .addFilterBefore(new JWTLoginFilter("/login", authenticationManager()),UsernamePasswordAuthenticationFilter.class)
+                    .addFilterBefore(new JWTAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)      
+                .httpBasic().disable()
+                .cors()
+                .and()
+                .requestCache().disable()
+                .logout().disable()
+                // .anonymous().disable()
+                .csrf().disable();
     }
 
 
@@ -110,8 +111,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter{
             usu.setRole("ADMIN");
             usu.setEncryptedPassword(encoder().encode("123"));
             usu.setEmail("admin@mycashflow.com");
-            usuarioRepository.save(usu);
-            logger.info("Admin user created with id: {}", usu.getId());
+            ((CrudRepository<User,Long>)usuarioRepository).save(usu);
+            logger.info("development Admin user created with id: {}", usu.getId());
         }
     }    
 
@@ -132,5 +133,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter{
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }    
+
+    
 
 }

@@ -11,7 +11,7 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 
 @RepositoryRestResource(collectionResourceRel = "bookEntryGroups", path = "bookEntryGroups")
-public interface BookEntryGroupRepository extends PagingAndSortingRepository<BookEntryGroup,Long>{
+public interface BookEntryGroupRepository extends PagingAndSortingRepository<BookEntryGroup,Long>, TenantAwareRepository{
 
-    List<BookEntryGroup> findByType(@Param("type") BookEntryType type);
+     List<BookEntryGroup> findByType(@Param("type") BookEntryType type);
 }

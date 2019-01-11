@@ -8,6 +8,6 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 
 @RepositoryRestResource(collectionResourceRel = "bookEntries", path = "bookEntries")
-public interface BookEntryRepository extends PagingAndSortingRepository<BookEntry,Long>{
+public interface BookEntryRepository extends PagingAndSortingRepository<BookEntry,Long>, TenantAwareRepository{
 
 }

@@ -1,8 +1,6 @@
 package com.lucassimao.fluxodecaixa.config;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Map;
 
 import javax.servlet.FilterChain;
@@ -20,8 +18,6 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
@@ -38,13 +34,18 @@ public class JWTLoginFilter extends AbstractAuthenticationProcessingFilter {
 
         if (request.getMethod().equalsIgnoreCase("POST")) {
             TypeReference<Map<String, String>> typeRef;
-            typeRef = new TypeReference<Map<String, String>>() {
-            };
+            typeRef = new TypeReference<Map<String, String>>() { };
 
             try {
                 Map<String, String> credentials = new ObjectMapper().readValue(request.getInputStream(), typeRef);
-                return getAuthenticationManager().authenticate(new UsernamePasswordAuthenticationToken(
-                        credentials.get("username"), credentials.get("password")));
+                String password = credentials.get("password");
+                String username = credentials.get("username");
+                Authentication auth = new UsernamePasswordAuthenticationToken(username, password);
+        
+                LoggerFactory.getLogger(JWTLoginFilter.class).debug("auth criada {} ", auth);
+
+                return getAuthenticationManager().authenticate(auth);
+
             } catch (IOException e) {
                 throw new BadCredentialsException("Invalid credentials", e);
             }
@@ -56,10 +57,7 @@ public class JWTLoginFilter extends AbstractAuthenticationProcessingFilter {
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
             Authentication authResult) throws IOException, ServletException {
-    
-        LoggerFactory.getLogger(JWTLoginFilter.class).debug("Login ok {} ", authResult);
-        TokenAuthenticationService.addAuthentication(response, authResult.getName(),authResult.getAuthorities());
+        TokenAuthenticationService.addAuthentication(response, authResult);
     }
-
 
 }
