@@ -2,6 +2,7 @@ package com.lucassimao.fluxodecaixa.repositories;
 
 import javax.persistence.EntityManager;
 
+
 /**
  * Interface created in order to mark a repository that must be 
  * augmented with the {@link com.lucassimao.fluxodecaixa.aspect.BookEntryGroupRepositoryAspect} aspect.
@@ -10,4 +11,6 @@ import javax.persistence.EntityManager;
 public interface TenantAwareRepository {
 
     EntityManager getEntityManager();
+
+
 }

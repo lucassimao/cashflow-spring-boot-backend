@@ -15,17 +15,17 @@ import org.springframework.stereotype.Component;
 
 @Aspect
 @Component
-public class BookEntryGroupRepositoryAspect {
+public class TenantFilterActivatorAspect {
 
     @Before("execution(* com.lucassimao.fluxodecaixa.repositories.TenantAwareRepository+.*(..))") 
     public void before(JoinPoint joinPoint) {
-        TenantAuthenticationToken tenantAuthenticationToken = (TenantAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
-        Logger logger = LoggerFactory.getLogger(BookEntryGroupRepositoryAspect.class);
+        Logger logger = LoggerFactory.getLogger(TenantFilterActivatorAspect.class);
 
         Object target = joinPoint.getTarget();
         logger.debug("Enabling filter for {} ", target);
 
         TenantAwareRepository tenantAwareRepository = (TenantAwareRepository) joinPoint.getTarget();
+        TenantAuthenticationToken tenantAuthenticationToken = (TenantAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
         tenantAwareRepository.getEntityManager()
             .unwrap(Session.class) 
             .enableFilter(TenantEntity.TENANT_FILTER_NAME) 

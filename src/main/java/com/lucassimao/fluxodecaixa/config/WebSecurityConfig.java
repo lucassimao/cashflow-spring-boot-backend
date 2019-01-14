@@ -5,7 +5,6 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 
 import com.lucassimao.fluxodecaixa.model.User;
-import com.lucassimao.fluxodecaixa.repositories.CustomUserRepository;
 import com.lucassimao.fluxodecaixa.repositories.UserRepository;
 import com.lucassimao.fluxodecaixa.service.MyUserDetailsService;
 
