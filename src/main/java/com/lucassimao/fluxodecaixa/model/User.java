@@ -3,6 +3,7 @@ package com.lucassimao.fluxodecaixa.model;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -11,19 +12,29 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import org.hibernate.annotations.CreationTimestamp;
 
 @Entity
-public class User{
+@JsonIgnoreProperties({"role"})
+public class User {
     
-    @Id
+    public static final String ROLE_USER = "USER";
+    public static final String ROLE_ADMIN = "ADMIN";
+
+	@Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Long id;
     @NotNull
     private String name;
     @Email
     @NotEmpty
+    @Column(unique=true)
     private String email;
+
+    @JsonProperty("password")
     private String encryptedPassword;
     @NotEmpty
     private String role;
@@ -34,15 +45,6 @@ public class User{
 
 
     public User() {
-    }
-
-    public User(Long id, String name, String email, String encryptedPassword, String role, LocalDateTime signUpDate) {
-        this.id = id;
-        this.name = name;
-        this.email = email;
-        this.encryptedPassword = encryptedPassword;
-        this.role = role;
-        this.signUpDate = signUpDate;
     }
 
     public Long getId() {
@@ -117,8 +119,8 @@ public class User{
             ", email='" + getEmail() + "'" +
             ", encryptedPassword='" + getEncryptedPassword() + "'" +
             ", role='" + getRole() + "'" +
-            ", signUpDate='" + getSignUpDate() + "'" +
-            "}";
+                ", signUpDate='" + getSignUpDate() + "'" + "}";
     }
+
     
 }

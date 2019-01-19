@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+
+<head>
+    <title>Spring Security Example </title>
+    <link  th:href="@{css/reset.css}" rel="stylesheet">
+    <link th:href="@{css/loginForm.css}" rel="stylesheet">
+</head>
+
+<body>
+    <form class="loginForm" th:action="@{/login}" method="post">
+        <fieldset>
+            <legend> Formulário de autenticação </legend>
+            <label for="username">Usuário:</label>
+            <input id="username" type="text" name="username" />
+
+            <label for="pwd">Senha:</label>
+            <input type="password" name="password" id="pwd">
+
+            <p class="error" th:if="${param.error}">
+                Usuário ou senha inválido(s)
+            </p>
+            <p class="info" th:if="${param.logout}">
+                Logout realizado com sucesso
+            </p>
+
+            <input type="submit" value="Entrar">
+        </fieldset>
+    </form>
+</body>
+
+</html>

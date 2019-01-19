@@ -9,7 +9,9 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.lucassimao.fluxodecaixa.converter.MoneyConverter;
@@ -19,19 +21,20 @@ import org.hibernate.annotations.UpdateTimestamp;
 import org.javamoney.moneta.Money;
 
 @Entity
-public class BookEntry{
+@Table(indexes = {
+    @Index(columnList = "tenantId")
+})
+public class BookEntry extends TenantEntity {
 
     @Id
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @ManyToOne(optional=false)
+    @ManyToOne(optional = false)
     private BookEntryGroup bookEntryGroup;
     private String description;
 
     @JsonFormat(pattern = "dd/MM/yyyy", timezone = "UTC")
     private LocalDate date;
-    @ManyToOne(optional=false)
-    private User user;
     @Convert(converter = MoneyConverter.class)
     private Money value;
 
@@ -40,21 +43,7 @@ public class BookEntry{
     @UpdateTimestamp
     private LocalDateTime dateUpdated;
 
-
-
-
     public BookEntry() {
-    }
-
-    public BookEntry(Long id, BookEntryGroup bookEntryGroup, String description, LocalDate date, User user, Money value, LocalDateTime dateCreated, LocalDateTime dateUpdated) {
-        this.id = id;
-        this.bookEntryGroup = bookEntryGroup;
-        this.description = description;
-        this.date = date;
-        this.user = user;
-        this.value = value;
-        this.dateCreated = dateCreated;
-        this.dateUpdated = dateUpdated;
     }
 
     public Long getId() {
@@ -89,14 +78,6 @@ public class BookEntry{
         this.date = date;
     }
 
-    public User getUser() {
-        return this.user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
     public Money getValue() {
         return this.value;
     }
@@ -121,7 +102,6 @@ public class BookEntry{
         this.dateUpdated = dateUpdated;
     }
 
-
     @Override
     public boolean equals(Object o) {
         if (o == this)
@@ -130,28 +110,22 @@ public class BookEntry{
             return false;
         }
         BookEntry bookEntry = (BookEntry) o;
-        return Objects.equals(id, bookEntry.id) && Objects.equals(bookEntryGroup, bookEntry.bookEntryGroup) && Objects.equals(description, bookEntry.description) && Objects.equals(date, bookEntry.date) && Objects.equals(user, bookEntry.user) && Objects.equals(value, bookEntry.value) && Objects.equals(dateCreated, bookEntry.dateCreated) && Objects.equals(dateUpdated, bookEntry.dateUpdated);
+        return Objects.equals(id, bookEntry.id) && Objects.equals(bookEntryGroup, bookEntry.bookEntryGroup)
+                && Objects.equals(description, bookEntry.description) && Objects.equals(date, bookEntry.date)
+                && Objects.equals(value, bookEntry.value) && Objects.equals(dateCreated, bookEntry.dateCreated)
+                && Objects.equals(dateUpdated, bookEntry.dateUpdated);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, bookEntryGroup, description, date, user, value, dateCreated, dateUpdated);
+        return Objects.hash(id, bookEntryGroup, description, date, value, dateCreated, dateUpdated);
     }
 
     @Override
     public String toString() {
-        return "{" +
-            " id='" + getId() + "'" +
-            ", bookEntryGroup='" + getBookEntryGroup() + "'" +
-            ", description='" + getDescription() + "'" +
-            ", date='" + getDate() + "'" +
-            ", user='" + getUser() + "'" +
-            ", value='" + getValue() + "'" +
-            ", dateCreated='" + getDateCreated() + "'" +
-            ", dateUpdated='" + getDateUpdated() + "'" +
-            "}";
+        return "{" + " id='" + getId() + "'" + ", bookEntryGroup='" + getBookEntryGroup() + "'" + ", description='"
+                + getDescription() + "'" + ", date='" + getDate() + "'" + ", value='" + getValue() + "'"
+                + ", dateCreated='" + getDateCreated() + "'" + ", dateUpdated='" + getDateUpdated() + "'" + "}";
     }
-
-
 
 }

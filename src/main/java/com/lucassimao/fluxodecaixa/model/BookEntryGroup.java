@@ -7,13 +7,18 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Index;
+import javax.persistence.Table;
 import javax.validation.constraints.NotEmpty;
 
 import com.lucassimao.fluxodecaixa.converter.BookEntryTypeConverter;
 
 
 @Entity
-public class BookEntryGroup{
+@Table(indexes = {
+    @Index(columnList = "tenantId")
+})
+public class BookEntryGroup extends TenantEntity{
 
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
@@ -25,12 +30,6 @@ public class BookEntryGroup{
 
 
     public BookEntryGroup() {
-    }
-
-    public BookEntryGroup(Long id, BookEntryType type, String description) {
-        this.id = id;
-        this.type = type;
-        this.description = description;
     }
 
     public Long getId() {
