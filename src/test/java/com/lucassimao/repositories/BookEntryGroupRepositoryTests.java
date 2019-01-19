@@ -4,10 +4,10 @@ import static org.hamcrest.CoreMatchers.endsWith;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.lucassimao.TestUtils;
 import com.lucassimao.fluxodecaixa.FluxoDeCaixaApplication;
 import com.lucassimao.fluxodecaixa.model.BookEntryGroup;
 import com.lucassimao.fluxodecaixa.model.BookEntryType;
@@ -32,6 +33,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
@@ -45,6 +47,7 @@ import org.springframework.test.web.servlet.MockMvc;
 @AutoConfigureMockMvc
 @TestPropertySource(locations = "classpath:application-integrationtest.properties")
 @DirtiesContext(classMode = ClassMode.BEFORE_EACH_TEST_METHOD)
+@ComponentScan(basePackageClasses=TestUtils.class)
 public class BookEntryGroupRepositoryTests {
 
     @Autowired
@@ -54,13 +57,14 @@ public class BookEntryGroupRepositoryTests {
     private ObjectMapper mapper;
 
     @Autowired
+    private TestUtils testUtils;
+
+    @Autowired
     private EntityManager entityManager;
 
     private Long idPrimeiroUsuario, idSegundoUsuario;
 
     private String tokenPrimeiroUsuario, tokenSegundoUsuario;
-
-    private final Pattern pattern = Pattern.compile("http://localhost(:\\d+)?/bookEntryGroups/(\\d+)$");
 
     private BookEntryGroup group2, group1;
 
@@ -74,11 +78,13 @@ public class BookEntryGroupRepositoryTests {
      */
     @Before
     public void setup() throws JsonProcessingException, Exception {
-        this.idPrimeiroUsuario = criarUsuario("Lucas Simao", "lsimaocosta@gmail.com", "123");
-        this.tokenPrimeiroUsuario = doLogin("lsimaocosta@gmail.com", "123");
+        Pattern pattern = Pattern.compile("http://localhost(:\\d+)?/bookEntryGroups/(\\d+)$");
 
-        this.idSegundoUsuario  = criarUsuario("xpto da silva", "xpto@gmail.com", "123");
-        this.tokenSegundoUsuario = doLogin("xpto@gmail.com", "123");
+        this.idPrimeiroUsuario = testUtils.criarUsuario("Lucas Simao", "lsimaocosta@gmail.com", "123");
+        this.tokenPrimeiroUsuario = testUtils.doLogin("lsimaocosta@gmail.com", "123");
+
+        this.idSegundoUsuario  = testUtils.criarUsuario("xpto da silva", "xpto@gmail.com", "123");
+        this.tokenSegundoUsuario = testUtils.doLogin("xpto@gmail.com", "123");
 
         this.group1 = new BookEntryGroup();
         group1.setDescription("Credit Card bill - 1st user");
@@ -234,34 +240,5 @@ public class BookEntryGroupRepositoryTests {
             .header("Authorization", tokenSegundoUsuario))
             .andExpect(status().isNotFound());   
     }    
-
-
-
-    private String doLogin(String login, String senha) throws JsonProcessingException, Exception {
-        Map<String, String> credentials = Map.of("username", login, "password", senha);
-
-        HttpServletResponse response =  mvc.perform(post("/login").content(mapper.writeValueAsString(credentials))
-            .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andReturn().getResponse();
-
-        return response.getHeader("Authorization").replace("Bearer", "").trim();
-
-    }
-
-    private Long criarUsuario(String name, String login, String password) throws Exception {
-        Map<String, String> usuario = Map.of("name", name, "email", login, "password", password);
-
-        HttpServletResponse response = mvc.perform(post("/users").content(mapper.writeValueAsString(usuario))
-            .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isCreated())
-            .andReturn().getResponse();
-
-        Pattern pattern = Pattern.compile("http://localhost(:\\d+)?/users/(\\d+)$");
-        Matcher matcher = pattern.matcher(response.getHeader("Location"));
-        assertTrue(matcher.matches());
-        return Long.valueOf(matcher.group(2));
-      
-    }
 
 }
