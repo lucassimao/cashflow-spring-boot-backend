@@ -29,17 +29,14 @@ in a webapp, using spring boot to implement the microservice on the backend and 
 ## Scope and TODO
 1. CRUD of Book entries groups **[done]**
 2. CRUD of Book entries ( expenses or incomes ) **[done]**
-3. Login with JWT and Multitenancy : CRUD operations on book entries groups and book entries must be scoped to the logged user
-4. Signup api: 
-   1. Creation must be public
-   2. update operations only available for logged users
-   3. exclusion and listing only available for administrative roles 
-5.  
-6. Annual, monthly and Daily dashboards for income and expenses tracking  
-7. Cash flow reports
-8. Cash flow goals - to define income and expenses goals in order to compare with the real cash flow
-9.  Demonstrative of fiscal year ( i.e  DRE - Demonstrativo de Resultado do Exercício)
-10. Bills to pay and Bills to receive
+3. Signup api, Login with JWT and Multitenancy : **[done]**
+   1. CRUD operations on book entries groups and book entries must be scoped to the logged user 
+   2. Signup api must be public
+4. Annual, monthly and Daily dashboards for income and expenses tracking  
+5. Cash flow reports
+6. Cash flow goals - to define income and expenses goals in order to compare with the real cash flow
+7.  Demonstrative of fiscal year ( i.e  DRE - Demonstrativo de Resultado do Exercício)
+8.  Bills to pay and Bills to receive
 
 
 ## Reference and articles ##
