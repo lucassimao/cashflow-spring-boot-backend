@@ -2,6 +2,8 @@ package com.lucassimao.fluxodecaixa.repositories;
 
 import javax.persistence.EntityManager;
 
+import org.springframework.data.rest.core.annotation.RestResource;
+
 
 /**
  * Interface created in order to mark a repository that must be 
@@ -10,6 +12,7 @@ import javax.persistence.EntityManager;
  */
 public interface TenantAwareRepository {
 
+    @RestResource(exported=false)
     EntityManager getEntityManager();
 
 

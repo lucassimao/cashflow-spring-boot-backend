@@ -32,8 +32,8 @@ in a webapp, using spring boot to implement the microservice on the backend and 
 3. Signup api, Login with JWT and Multitenancy : **[done]**
    1. CRUD operations on book entries groups and book entries must be scoped to the logged user 
    2. Signup api must be public
-4. Annual, monthly and Daily dashboards for income and expenses tracking  
-5. Cash flow reports
+4. Reports **[in progress]**
+   1. Annual, monthly and Daily reports of income and expenses
 6. Cash flow goals - to define income and expenses goals in order to compare with the real cash flow
 7.  Demonstrative of fiscal year ( i.e  DRE - Demonstrativo de Resultado do Exercício)
 8.  Bills to pay and Bills to receive
@@ -50,6 +50,7 @@ in a webapp, using spring boot to implement the microservice on the backend and 
 ## Tips
 1. Creating a generic user
    > curl -i -H "content-type: application/json" -d '{"name":"Lucas Simão","email":"lsimaocosta@gmail.com","password":"123"}'  -v http://localhost:8080/users
+     // @RestResource(path = "nameStartsWith", rel = "nameStartsWith")
 2. Authenticatig as admin using curl in development enviroment
    > curl -i -H "content-type: application/json" -d '{"username":"admin@mycashflow.com","password":"123"}'  -v http://localhost:8080/login
 3. Beteween the response headers from the previous request, will be the Authorization one. Just send the header value in any request
