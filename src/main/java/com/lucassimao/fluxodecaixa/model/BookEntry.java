@@ -2,6 +2,7 @@ package com.lucassimao.fluxodecaixa.model;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Objects;
 
 import javax.persistence.Convert;
@@ -13,7 +14,6 @@ import javax.persistence.Index;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.lucassimao.fluxodecaixa.converter.MoneyConverter;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -33,8 +33,8 @@ public class BookEntry extends TenantEntity {
     private BookEntryGroup bookEntryGroup;
     private String description;
 
-    @JsonFormat(pattern = "dd/MM/yyyy", timezone = "UTC")
-    private LocalDate date;
+    // @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ")
+    private ZonedDateTime date;
     @Convert(converter = MoneyConverter.class)
     private Money value;
 
@@ -70,11 +70,11 @@ public class BookEntry extends TenantEntity {
         this.description = description;
     }
 
-    public LocalDate getDate() {
-        return this.date;
+    public ZonedDateTime getDate() {
+        return date;
     }
 
-    public void setDate(LocalDate date) {
+    public void setDate(ZonedDateTime date) {
         this.date = date;
     }
 
