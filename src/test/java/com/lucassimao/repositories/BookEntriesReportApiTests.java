@@ -5,6 +5,8 @@ import java.time.LocalTime;
 import java.time.Month;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 
 import com.lucassimao.TestUtils;
 import com.lucassimao.fluxodecaixa.FluxoDeCaixaApplication;
@@ -105,9 +107,17 @@ public class BookEntriesReportApiTests{
 
     @Test
     public void testSearchingBookEntriesFor1stUser() throws Exception {
-        int monthIndex = Month.JUNE.ordinal()+1;
-        mvc.perform(get("/bookEntries/search/findByMonth?month=" + monthIndex)
-            .header("Authorization",authTokenUser1))
+        LocalDate juneStart = LocalDate.of(2019, Month.JUNE, 1);
+        LocalDate juneEnd = juneStart.withDayOfMonth(juneStart.lengthOfMonth());  
+
+        DateTimeFormatter formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
+        String start = formatter.format(juneStart);
+        String end = formatter.format(juneEnd);
+
+
+        mvc.perform(get("/bookEntries/search/findByInterval")
+                    .param("start",start).param("end", end)
+                    .header("Authorization",authTokenUser1))
             .andExpect(status().isOk())
             .andExpect(content().contentTypeCompatibleWith(MediaTypes.HAL_JSON_UTF8))
             .andExpect(jsonPath("_embedded.bookEntries.length()", is(1)))
