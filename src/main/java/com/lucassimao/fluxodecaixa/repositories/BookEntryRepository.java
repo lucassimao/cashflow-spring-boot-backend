@@ -1,7 +1,7 @@
 package com.lucassimao.fluxodecaixa.repositories;
 
-import java.time.LocalDate;
 import java.time.ZonedDateTime;
+import java.util.Date;
 import java.util.Optional;
 
 import com.lucassimao.fluxodecaixa.model.BookEntry;
@@ -21,6 +21,7 @@ public interface BookEntryRepository extends PagingAndSortingRepository<BookEntr
     @Query("SELECT b FROM BookEntry b WHERE b.id = ?1")
     Optional<BookEntry> findById(Long id);
 
-     @Query("SELECT b FROM BookEntry b WHERE :start is not null and :end is not null and date between :start and :end")
-     public Page findByInterval(@Param("start") ZonedDateTime start, @Param("end") ZonedDateTime end, Pageable p);        
+     @Query("SELECT b FROM BookEntry b WHERE :start is not null and :end is not null and DATE(b.date) between DATE(:start) and DATE(:end)")
+     Page findByInterval(@Param("start") @DateTimeFormat(iso=ISO.DATE_TIME) ZonedDateTime start, 
+                                @Param("end") @DateTimeFormat(iso=ISO.DATE_TIME) ZonedDateTime end, Pageable p);        
 }

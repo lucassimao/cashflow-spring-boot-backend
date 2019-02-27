@@ -14,6 +14,7 @@ import javax.persistence.Index;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.lucassimao.fluxodecaixa.converter.MoneyConverter;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -33,7 +34,7 @@ public class BookEntry extends TenantEntity {
     private BookEntryGroup bookEntryGroup;
     private String description;
 
-    // @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ")
+    // @JsonFormat(timezone = "UTC", pattern = "yyyy-MM-dd'T'HH:mm:ssZ")
     private ZonedDateTime date;
     @Convert(converter = MoneyConverter.class)
     private Money value;
