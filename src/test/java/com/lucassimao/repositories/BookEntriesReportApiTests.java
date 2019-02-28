@@ -60,7 +60,7 @@ public class BookEntriesReportApiTests {
         this.authTokenUser1 = this.testUtils.doLogin("usuario-1@bookEntriesReportApiTests.com", "4242424242");
         this.authTokenUser2 = this.testUtils.doLogin("usuario-2@bookEntriesReportApiTests.com", "123321");
 
-        // The first user will have only a house rent expense on 2019/JUNE/02
+        // The first user will have only a house rent expense on 2019/JUNE/30
         BookEntryGroup homeExpensesGroup = new BookEntryGroup();
         homeExpensesGroup.setDescription("Home expenses");
         homeExpensesGroup.setType(BookEntryType.Expense);
@@ -75,7 +75,7 @@ public class BookEntriesReportApiTests {
         bookEntry1.setValue(Money.of(1_500, "BRL"));
         this.testUtils.createNewBookEntry(bookEntry1, authTokenUser1);
 
-        // The second user will have only a salary payment on 2019/JULY/27
+        // The second user will have only a salary payment on 2019/JULY/29
         BookEntryGroup salaryGroup = new BookEntryGroup();
         salaryGroup.setDescription("Salary");
         salaryGroup.setType(BookEntryType.Income);
