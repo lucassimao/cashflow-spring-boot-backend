@@ -75,12 +75,18 @@ public class BookEntriesReportApiTests {
         bookEntry1.setValue(Money.of(1_500, "BRL"));
         this.testUtils.createNewBookEntry(bookEntry1, authTokenUser1);
 
-        // The second user will have only a salary payment on 2019/JULY/29
+        // The second user will have two book entries: a salary payment on 2019/JULY/29
         BookEntryGroup salaryGroup = new BookEntryGroup();
         salaryGroup.setDescription("Salary");
         salaryGroup.setType(BookEntryType.Income);
         groupId = this.testUtils.createNewBookEntryGroup(salaryGroup, authTokenUser2);
         salaryGroup.setId(groupId);
+
+        BookEntryGroup billsGroup = new BookEntryGroup();
+        billsGroup.setDescription("Bills");
+        billsGroup.setType(BookEntryType.Expense);
+        groupId = this.testUtils.createNewBookEntryGroup(billsGroup, authTokenUser2);
+        billsGroup.setId(groupId);
 
         BookEntry bookEntry2 = new BookEntry();
         bookEntry2.setDate(ZonedDateTime.of(LocalDate.of(2019, Month.JULY, 29), LocalTime.of(23, 0, 30),
@@ -89,6 +95,13 @@ public class BookEntriesReportApiTests {
         bookEntry2.setValue(Money.of(10000, "BRL"));
         bookEntry2.setBookEntryGroup(salaryGroup);
         this.testUtils.createNewBookEntry(bookEntry2, authTokenUser2);
+
+        BookEntry bookEntry3 = new BookEntry();
+        bookEntry3.setDate(ZonedDateTime.of(LocalDate.of(2019, Month.JULY, 15), LocalTime.of(0, 0, 0),CLIENT_ZONE));
+        bookEntry3.setDescription("eletric bill");
+        bookEntry3.setBookEntryGroup(billsGroup);
+        bookEntry3.setValue(Money.of(500, "BRL"));
+        this.testUtils.createNewBookEntry(bookEntry3, authTokenUser2);        
     }
 
     @Test
@@ -126,10 +139,13 @@ public class BookEntriesReportApiTests {
                 .header("Authorization",authTokenUser2))
             .andExpect(status().isOk())
             .andExpect(content().contentTypeCompatibleWith(MediaTypes.HAL_JSON_UTF8))
-            .andExpect(jsonPath("_embedded.bookEntries.length()", is(1)))
+            .andExpect(jsonPath("_embedded.bookEntries.length()", is(2)))
             .andExpect(jsonPath("_embedded.bookEntries[0].description", is("JULY paycheck")))
-            .andExpect(jsonPath("_embedded.bookEntries[0].date", UTCMatcher.utcMatcher(CLIENT_ZONE,"2019-07-29")));
-
+            .andExpect(jsonPath("_embedded.bookEntries[0].date", UTCMatcher.utcMatcher(CLIENT_ZONE,"2019-07-29")))
+            .andExpect(jsonPath("_embedded.bookEntries[0].value.value", is(10000.0)))
+            .andExpect(jsonPath("_embedded.bookEntries[1].description", is("eletric bill")))
+            .andExpect(jsonPath("_embedded.bookEntries[1].date", UTCMatcher.utcMatcher(CLIENT_ZONE,"2019-07-15")))
+            .andExpect(jsonPath("_embedded.bookEntries[1].value.value", is(500.0)));
     }    
 
 

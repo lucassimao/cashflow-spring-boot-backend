@@ -34,7 +34,6 @@ public class BookEntry extends TenantEntity {
     private BookEntryGroup bookEntryGroup;
     private String description;
 
-    // @JsonFormat(timezone = "UTC", pattern = "yyyy-MM-dd'T'HH:mm:ssZ")
     private ZonedDateTime date;
     @Convert(converter = MoneyConverter.class)
     private Money value;
