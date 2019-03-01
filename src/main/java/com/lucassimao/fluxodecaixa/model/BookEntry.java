@@ -1,6 +1,5 @@
 package com.lucassimao.fluxodecaixa.model;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.Objects;
@@ -14,7 +13,6 @@ import javax.persistence.Index;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.lucassimao.fluxodecaixa.converter.MoneyConverter;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -22,9 +20,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import org.javamoney.moneta.Money;
 
 @Entity
-@Table(indexes = {
-    @Index(columnList = "tenantId")
-})
+@Table(indexes = { @Index(columnList = "tenantId") })
 public class BookEntry extends TenantEntity {
 
     @Id
