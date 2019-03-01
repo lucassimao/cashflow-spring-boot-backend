@@ -26,7 +26,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lucassimao.TestUtils;
 import com.lucassimao.fluxodecaixa.FluxoDeCaixaApplication;
-import com.lucassimao.fluxodecaixa.model.BookEntry;
 import com.lucassimao.fluxodecaixa.model.BookEntryGroup;
 import com.lucassimao.fluxodecaixa.model.BookEntryType;
 

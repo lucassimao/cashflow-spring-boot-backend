@@ -120,6 +120,7 @@ public class TestUtils{
         return bookEntryGroupId;
     }
 
+    @SuppressWarnings("unchecked")
     public long createNewBookEntry(BookEntry bookEntry,String userToken) throws JsonProcessingException, Exception {
         final Pattern bookEntryPattern = Pattern.compile("http://localhost(:\\d+)?/bookEntries/(\\d+)$");
         Map<String,Object> bookEntryMap = this.mapper.convertValue(bookEntry, Map.class);

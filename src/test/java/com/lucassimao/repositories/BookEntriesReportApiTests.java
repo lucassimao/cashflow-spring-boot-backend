@@ -146,7 +146,28 @@ public class BookEntriesReportApiTests {
             .andExpect(jsonPath("_embedded.bookEntries[1].description", is("eletric bill")))
             .andExpect(jsonPath("_embedded.bookEntries[1].date", UTCMatcher.utcMatcher(CLIENT_ZONE,"2019-07-15")))
             .andExpect(jsonPath("_embedded.bookEntries[1].value.value", is(500.0)));
-    }    
+    }   
+    
+    
+    @Test
+    public void testSearchForSpecificDay() throws Exception {
+        LocalDate day = LocalDate.of(2019, Month.JULY, 29);
+        ZonedDateTime startzdt = day.atStartOfDay(CLIENT_ZONE);
+        ZonedDateTime endZdt = day.atTime(23, 59, 59).atZone(CLIENT_ZONE);
+
+        DateTimeFormatter formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
+
+        mvc.perform(get("/bookEntries/search/findByInterval")
+                .param("start",formatter.format(startzdt))
+                .param("end", formatter.format(endZdt))
+                .header("Authorization",authTokenUser2))
+            .andExpect(status().isOk())
+            .andExpect(content().contentTypeCompatibleWith(MediaTypes.HAL_JSON_UTF8))
+            .andExpect(jsonPath("_embedded.bookEntries.length()", is(1)))
+            .andExpect(jsonPath("_embedded.bookEntries[0].description", is("JULY paycheck")))
+            .andExpect(jsonPath("_embedded.bookEntries[0].date", UTCMatcher.utcMatcher(CLIENT_ZONE,"2019-07-29")))
+            .andExpect(jsonPath("_embedded.bookEntries[0].value.value", is(10000.0)));
+    }
 
 
 }
