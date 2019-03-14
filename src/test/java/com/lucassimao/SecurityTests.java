@@ -36,7 +36,7 @@ import org.springframework.test.web.servlet.MockMvc;
 @AutoConfigureMockMvc
 @TestPropertySource(locations = "classpath:application-integrationtest.properties")
 @DirtiesContext(classMode = ClassMode.BEFORE_EACH_TEST_METHOD)
-@ComponentScan(basePackageClasses=TestUtils.class)
+@ComponentScan(basePackages={"com.lucassimao.fluxodecaixa.config","com.lucassimao"})
 public class SecurityTests{
 
 	@Autowired
