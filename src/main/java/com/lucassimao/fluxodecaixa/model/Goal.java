@@ -20,13 +20,13 @@ import org.javamoney.moneta.Money;
 
 @Entity
 @Table(indexes = { @Index(columnList = "tenantId") })
-public class Goal extends TenantEntity{
+public class Goal extends TenantEntity {
 
     @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private ZonedDateTime start,end;
+    private ZonedDateTime start, end;
     @ManyToOne
     private BookEntryGroup bookEntryGroup;
 
