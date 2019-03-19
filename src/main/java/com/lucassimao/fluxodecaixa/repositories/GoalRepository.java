@@ -1,10 +1,8 @@
 package com.lucassimao.fluxodecaixa.repositories;
 
 import java.time.ZonedDateTime;
-import java.util.List;
 import java.util.Optional;
 
-import com.lucassimao.fluxodecaixa.model.BookEntryType;
 import com.lucassimao.fluxodecaixa.model.Goal;
 
 import org.springframework.data.domain.Page;
@@ -18,8 +16,6 @@ import org.springframework.format.annotation.DateTimeFormat.ISO;
 
 @RepositoryRestResource(collectionResourceRel = "goals", path = "goals")
 public interface GoalRepository extends PagingAndSortingRepository<Goal, Long>, TenantAwareRepository {
-
-     List<Goal> findByType(@Param("type") BookEntryType type);
 
      @Query("SELECT g FROM Goal g WHERE g.id = ?1")
      Optional<Goal> findById(Long id);
