@@ -1,11 +1,16 @@
 package com.lucassimao.repositories;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.hamcrest.CoreMatchers.is;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
@@ -13,9 +18,6 @@ import javax.servlet.http.HttpServletResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lucassimao.TestUtils;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import com.lucassimao.fluxodecaixa.FluxoDeCaixaApplication;
 import com.lucassimao.fluxodecaixa.model.BookEntry;
 import com.lucassimao.fluxodecaixa.model.BookEntryGroup;
@@ -30,6 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
@@ -120,6 +123,16 @@ public class GoalRepositoryTests {
                                             .contentType(MediaType.APPLICATION_JSON))
                                             .andExpect(status().isCreated())
                                             .andReturn().getResponse();
+
+        mockMvc.perform(get("/goals")
+            .header("Authorization", this.firstUserToken))
+            .andExpect(status().isOk())
+            .andExpect(content().contentTypeCompatibleWith(MediaTypes.HAL_JSON_UTF8))
+            .andExpect(jsonPath("_embedded.bookEntries.length()", is(1)));
+            // .andExpect(jsonPath("_embedded.bookEntries[0].description", is(bookEntry2.getDescription())))
+            // .andExpect(jsonPath("_embedded.bookEntries[0]._links.self.href", endsWith("bookEntries/" + this.bookEntry2.getId())));
+
+
     }
 
 
