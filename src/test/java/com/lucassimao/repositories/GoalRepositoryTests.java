@@ -61,9 +61,7 @@ public class GoalRepositoryTests {
 
     private String secondUserToken;
 
-    private BookEntry bookEntry1;
-
-    private BookEntry bookEntry2;
+    private BookEntry bookEntry1,bookEntry2,bookEntry3;
 
     @Before
     public void setup() throws JsonProcessingException, Exception {
@@ -87,6 +85,13 @@ public class GoalRepositoryTests {
         this.bookEntry1.setValue(Money.of(BigDecimal.valueOf(50), "BRL"));
         this.bookEntry1.setId(testUtils.createNewBookEntry(this.bookEntry1, firstUserToken));
 
+        this.bookEntry2 = new BookEntry();
+        this.bookEntry2.setBookEntryGroup(group1);
+        this.bookEntry2.setDate(LocalDate.of(2019, Month.FEBRUARY, 15).atStartOfDay(ZoneId.systemDefault()));
+        this.bookEntry2.setDescription("Elletric bill from 2019-February");
+        this.bookEntry2.setValue(Money.of(BigDecimal.valueOf(150), "BRL"));
+        this.bookEntry2.setId(testUtils.createNewBookEntry(this.bookEntry2, firstUserToken));
+
 
         BookEntryGroup group2 = new BookEntryGroup();
         group2.setDescription("Stock dividends");
@@ -95,12 +100,12 @@ public class GoalRepositoryTests {
         group2.setId(testUtils.createNewBookEntryGroup(group2, secondUserToken));
 
 
-        this.bookEntry2 = new BookEntry();
-        this.bookEntry2.setBookEntryGroup(group2);
-        this.bookEntry2.setDate(LocalDate.of(2019, Month.JUNE, 15).atStartOfDay(ZoneId.systemDefault()));
-        this.bookEntry2.setDescription("June's FB stocks dividends");
-        this.bookEntry2.setValue(Money.of(BigDecimal.valueOf(150), "BRL"));
-        this.bookEntry2.setId(testUtils.createNewBookEntry(this.bookEntry2, secondUserToken));
+        this.bookEntry3 = new BookEntry();
+        this.bookEntry3.setBookEntryGroup(group2);
+        this.bookEntry3.setDate(LocalDate.of(2019, Month.FEBRUARY, 15).atStartOfDay(ZoneId.systemDefault()));
+        this.bookEntry3.setDescription("June's FB stocks dividends");
+        this.bookEntry3.setValue(Money.of(BigDecimal.valueOf(150), "BRL"));
+        this.bookEntry3.setId(testUtils.createNewBookEntry(this.bookEntry3, secondUserToken));
 
     }
 
@@ -128,14 +133,40 @@ public class GoalRepositoryTests {
             .header("Authorization", this.firstUserToken))
             .andExpect(status().isOk())
             .andExpect(content().contentTypeCompatibleWith(MediaTypes.HAL_JSON_UTF8))
-            .andExpect(jsonPath("_embedded.bookEntries.length()", is(1)));
-            // .andExpect(jsonPath("_embedded.bookEntries[0].description", is(bookEntry2.getDescription())))
-            // .andExpect(jsonPath("_embedded.bookEntries[0]._links.self.href", endsWith("bookEntries/" + this.bookEntry2.getId())));
-
+            .andExpect(jsonPath("_embedded.goals.length()", is(1)))
+            .andExpect(jsonPath("_embedded.goals[0].bookEntries.length()", is(2)));
 
     }
 
 
+    @Test
+    public void testGoalForUser2() throws JsonProcessingException, Exception {
+        LocalDate februaryStart = LocalDate.of(2019, Month.FEBRUARY, 1);
+        LocalDate februaryEnd = februaryStart.withDayOfMonth(februaryStart.lengthOfMonth());
+        
+        Goal goal = new Goal();
+        goal.setBookEntryGroup(this.bookEntry3.getBookEntryGroup());
+        goal.setStart(februaryStart.atStartOfDay(ZoneId.systemDefault()));
+        goal.setEnd(februaryEnd.atTime(23  , 59, 59).atZone(ZoneId.systemDefault()));
+        goal.setMaximum(Money.of(BigDecimal.valueOf(500), "BRL"));
+        Map<String,Object> goalMap = this.mapper.convertValue(goal, Map.class);
+        goalMap.put("bookEntryGroup", "/bookEntryGroups/" + goal.getBookEntryGroup().getId());
+
+        HttpServletResponse response = mockMvc.perform(post("/goals")
+                                            .content(mapper.writeValueAsString(goalMap))
+                                            .header("Authorization", this.secondUserToken)
+                                            .contentType(MediaType.APPLICATION_JSON))
+                                            .andExpect(status().isCreated())
+                                            .andReturn().getResponse();
+
+        mockMvc.perform(get("/goals")
+            .header("Authorization", this.secondUserToken))
+            .andExpect(status().isOk())
+            .andExpect(content().contentTypeCompatibleWith(MediaTypes.HAL_JSON_UTF8))
+            .andExpect(jsonPath("_embedded.goals.length()", is(1)))
+            .andExpect(jsonPath("_embedded.goals[0].bookEntries.length()", is(1)));
+
+    }
 
 
 }
