@@ -33,7 +33,6 @@ public interface GoalWithBookEntriesProjection  {
     public List<BookEntry> getBookEntries();
 
     public default boolean isExceeded(){
-
         Money total = this.getBookEntries().stream()
                           .map(BookEntry::getValue)
                           .reduce((v1,v2) ->  v1.add(v2))

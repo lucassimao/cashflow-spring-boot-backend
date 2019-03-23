@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.Objects;
 
+import javax.persistence.Cacheable;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -15,12 +16,16 @@ import javax.persistence.Table;
 
 import com.lucassimao.fluxodecaixa.converter.MoneyConverter;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.javamoney.moneta.Money;
 
 @Entity
 @Table(indexes = { @Index(columnList = "tenantId") })
+@Cacheable
+@Cache(region = "bookEntryCache", usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class BookEntry extends TenantEntity {
 
     @Id

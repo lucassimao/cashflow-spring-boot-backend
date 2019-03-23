@@ -11,7 +11,7 @@
 	</parent>
 	<groupId>com.lucassimao</groupId>
 	<artifactId>fluxo-de-caixa</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.6.0</version>
 	<name>fluxo-de-caixa</name>
 	<description>Cash flow - Springboot backend </description>
 
@@ -53,7 +53,6 @@
 			<artifactId>spring-boot-starter-aop</artifactId>
 		</dependency>
 
-
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-devtools</artifactId>
@@ -77,6 +76,19 @@
 			<groupId>com.auth0</groupId>
 			<artifactId>java-jwt</artifactId>
 			<version>3.4.0</version>
+		</dependency>
+
+
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-jcache</artifactId>
+			<version>5.4.1.Final</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.ehcache</groupId>
+			<artifactId>ehcache</artifactId>
+			<version>3.3.1</version>
 		</dependency>
 
 	</dependencies>
