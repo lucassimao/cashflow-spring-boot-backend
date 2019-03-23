@@ -11,6 +11,7 @@ import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 
 import com.lucassimao.fluxodecaixa.converter.MoneyConverter;
 
@@ -26,11 +27,18 @@ public class Goal extends TenantEntity {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private ZonedDateTime start, end;
+    @NotNull
+    private ZonedDateTime start;
+
+    @NotNull
+    private ZonedDateTime end;
+
     @ManyToOne
+    @NotNull
     private BookEntryGroup bookEntryGroup;
 
     @Convert(converter = MoneyConverter.class)
+    @NotNull
     private Money maximum;
 
     @CreationTimestamp
