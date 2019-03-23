@@ -23,14 +23,14 @@ public interface BookEntryRepository extends PagingAndSortingRepository<BookEntr
     @Query("SELECT b FROM BookEntry b WHERE b.id = ?1")
     Optional<BookEntry> findById(Long id);
 
-    @Query("SELECT b FROM BookEntry b WHERE :start is not null and :end is not null and DATE(b.date) between DATE(:start) and DATE(:end) order by b.date desc")
+    @Query("SELECT b FROM BookEntry b WHERE b.bookEntryGroup=:group AND DATE(b.date) between DATE(:start) and DATE(:end) order by b.date desc")
     @RestResource(exported = false)
     List<BookEntry> findAllForGoal(@Param("start") ZonedDateTime start,  
-                                    @Param("end") ZonedDateTime end);   
+                                    @Param("end") ZonedDateTime end, @Param("group") BookEntryGroup bookEntryGroup);   
           
 
      @Query("SELECT b FROM BookEntry b WHERE :start is not null and :end is not null and DATE(b.date) between DATE(:start) and DATE(:end) order by b.date desc")
      Page<BookEntry> findByInterval(@Param("start") @DateTimeFormat(iso=ISO.DATE_TIME) ZonedDateTime start, 
                                 @Param("end") @DateTimeFormat(iso=ISO.DATE_TIME) ZonedDateTime end, Pageable p);   
-                                
+
 }

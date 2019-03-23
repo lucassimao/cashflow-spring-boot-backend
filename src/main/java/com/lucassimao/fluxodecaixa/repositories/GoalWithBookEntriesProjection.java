@@ -29,10 +29,11 @@ public interface GoalWithBookEntriesProjection  {
 
     public LocalDateTime getDateUpdated();
 
-    @Value("#{@bookEntryRepository.findAllForGoal(target.start,target.end)}")    
+    @Value("#{@bookEntryRepository.findAllForGoal(target.start,target.end,target.bookEntryGroup)}")    
     public List<BookEntry> getBookEntries();
 
     public default boolean isExceeded(){
+
         Money total = this.getBookEntries().stream()
                           .map(BookEntry::getValue)
                           .reduce((v1,v2) ->  v1.add(v2))

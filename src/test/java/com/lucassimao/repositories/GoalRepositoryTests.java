@@ -104,7 +104,7 @@ public class GoalRepositoryTests {
         this.bookEntry3.setBookEntryGroup(group2);
         this.bookEntry3.setDate(LocalDate.of(2019, Month.FEBRUARY, 15).atStartOfDay(ZoneId.systemDefault()));
         this.bookEntry3.setDescription("June's FB stocks dividends");
-        this.bookEntry3.setValue(Money.of(BigDecimal.valueOf(150), "BRL"));
+        this.bookEntry3.setValue(Money.of(BigDecimal.valueOf(750), "BRL"));
         this.bookEntry3.setId(testUtils.createNewBookEntry(this.bookEntry3, secondUserToken));
 
     }
@@ -118,7 +118,7 @@ public class GoalRepositoryTests {
         goal.setBookEntryGroup(this.bookEntry1.getBookEntryGroup());
         goal.setStart(februaryStart.atStartOfDay(ZoneId.systemDefault()));
         goal.setEnd(februaryEnd.atTime(23  , 59, 59).atZone(ZoneId.systemDefault()));
-        goal.setMaximum(Money.of(BigDecimal.valueOf(500), "BRL"));
+        goal.setMaximum(Money.of(BigDecimal.valueOf(100), "BRL"));
         Map<String,Object> goalMap = this.mapper.convertValue(goal, Map.class);
         goalMap.put("bookEntryGroup", "/bookEntryGroups/" + goal.getBookEntryGroup().getId());
 
@@ -134,6 +134,7 @@ public class GoalRepositoryTests {
             .andExpect(status().isOk())
             .andExpect(content().contentTypeCompatibleWith(MediaTypes.HAL_JSON_UTF8))
             .andExpect(jsonPath("_embedded.goals.length()", is(1)))
+            .andExpect(jsonPath("_embedded.goals[0].exceeded", is(true)))
             .andExpect(jsonPath("_embedded.goals[0].bookEntries.length()", is(2)));
 
     }
@@ -148,7 +149,7 @@ public class GoalRepositoryTests {
         goal.setBookEntryGroup(this.bookEntry3.getBookEntryGroup());
         goal.setStart(februaryStart.atStartOfDay(ZoneId.systemDefault()));
         goal.setEnd(februaryEnd.atTime(23  , 59, 59).atZone(ZoneId.systemDefault()));
-        goal.setMaximum(Money.of(BigDecimal.valueOf(500), "BRL"));
+        goal.setMaximum(Money.of(BigDecimal.valueOf(50), "BRL"));
         Map<String,Object> goalMap = this.mapper.convertValue(goal, Map.class);
         goalMap.put("bookEntryGroup", "/bookEntryGroups/" + goal.getBookEntryGroup().getId());
 
@@ -164,6 +165,7 @@ public class GoalRepositoryTests {
             .andExpect(status().isOk())
             .andExpect(content().contentTypeCompatibleWith(MediaTypes.HAL_JSON_UTF8))
             .andExpect(jsonPath("_embedded.goals.length()", is(1)))
+            .andExpect(jsonPath("_embedded.goals[0].exceeded", is(true)))
             .andExpect(jsonPath("_embedded.goals[0].bookEntries.length()", is(1)));
 
     }
