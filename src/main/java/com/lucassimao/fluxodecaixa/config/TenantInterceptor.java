@@ -9,6 +9,7 @@ import org.hibernate.EmptyInterceptor;
 import org.hibernate.type.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
@@ -24,37 +25,45 @@ public class TenantInterceptor extends EmptyInterceptor {
 
     @Override
     public boolean onSave(Object entity, Serializable id, Object[] state, String[] propertyNames, Type[] types) {
-        return addTenantIdIfObjectIsTenantEntity(entity, state, propertyNames);
+        boolean wasModified = false;
+        if (entity instanceof TenantEntity){
+            wasModified = addTenantId(entity, state, propertyNames);
+            validateTenantState(state, propertyNames);
+        }
+        return wasModified;
     }
 
     @Override
     public boolean onFlushDirty(Object entity, Serializable id, Object[] currentState, Object[] previousState,
             String[] propertyNames, Type[] types) {
-
-        if (id != null) {
-
-            TenantAuthenticationToken tenantAuthenticationToken = (TenantAuthenticationToken) SecurityContextHolder
-                    .getContext().getAuthentication();
-            for (int index = 0; index < propertyNames.length; index++) {
-                if (propertyNames[index].equals(TenantEntity.TENANT_ID_PROPERTY_NAME)) {
-                    Long entityTenantId = (Long) previousState[index];
-                    logger.debug("Trying to flush entity {} with tenantId {} from tenantId {}", entity, entityTenantId,
-                            tenantAuthenticationToken.getTenantId());
-
-                    if (!entityTenantId.equals(tenantAuthenticationToken.getTenantId()))
-                        throw new RuntimeException("invalid tenant");
-                    else
-                        break;
-                }
-            }
-
-        }
-
+        validateTenantState(currentState, propertyNames);
         return false;
-
     }
 
-    private boolean addTenantIdIfObjectIsTenantEntity(Object entity, Object[] state, String[] propertyName) {
+    private void validateTenantState(Object[] state, String[] propertyNames) {
+        SecurityContext context = SecurityContextHolder.getContext();
+        TenantAuthenticationToken tenantAuthenticationToken = (TenantAuthenticationToken) context.getAuthentication();
+        Long tenantId = tenantAuthenticationToken.getTenantId();
+
+        for (int index = 0; index < propertyNames.length; index++) {
+            if (propertyNames[index].equals(TenantEntity.TENANT_ID_PROPERTY_NAME)) {
+                Long entityTenantId = (Long) state[index];
+
+                if (!entityTenantId.equals(tenantId))
+                    throw new RuntimeException("invalid tenant");
+                else
+                    break;
+            } else if (state[index] instanceof TenantEntity) {
+                TenantEntity association = (TenantEntity) state[index];
+                logger.debug("field tenantId = {} | request tenantId = {}", association.getTenantId(), tenantId);
+
+                if (!tenantId.equals(association.getTenantId()))
+                    throw new IllegalArgumentException("Invalid value for field " + propertyNames[index]);
+            }
+        }
+    }
+
+    private boolean addTenantId(Object entity, Object[] state, String[] propertyName) {
         logger.debug("entity {} state {} propertyName {}", entity, Arrays.toString(state),
                 Arrays.toString(propertyName));
 

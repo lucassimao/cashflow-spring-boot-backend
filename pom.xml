@@ -11,7 +11,7 @@
 	</parent>
 	<groupId>com.lucassimao</groupId>
 	<artifactId>fluxo-de-caixa</artifactId>
-	<version>0.6.0</version>
+	<version>0.6.1</version>
 	<name>fluxo-de-caixa</name>
 	<description>Cash flow - Springboot backend </description>
 
