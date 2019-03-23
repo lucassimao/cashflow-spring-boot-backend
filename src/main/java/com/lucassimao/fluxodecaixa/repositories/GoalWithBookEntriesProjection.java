@@ -17,6 +17,8 @@ import org.springframework.data.rest.core.config.Projection;
 @Projection(name = "goalWithBookEntries", types = Goal.class)
 public interface GoalWithBookEntriesProjection  {
 
+    public Long getId();
+    
     public ZonedDateTime getStart();
 
     public ZonedDateTime getEnd();
