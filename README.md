@@ -34,7 +34,7 @@ in a webapp, using spring boot to implement the microservice on the backend and 
    2. Signup api must be public
 4. Reports **[done]**
    1. Annual, monthly and Daily reports of income and expenses
-6.  Cash flow goals - to define income and expenses goals in order to compare with the real cash flow
+6.  Cash flow goals - to define income and expenses goals in order to compare with the real cash flow **[done]**
 
 
 ## Reference and articles ##
