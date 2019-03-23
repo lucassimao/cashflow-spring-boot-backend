@@ -95,7 +95,7 @@ public class TestUtils{
         BookEntry bookEntry = new BookEntry();
         bookEntry.setDate(ZonedDateTime.now().plusDays(random.nextInt(30)));
         bookEntry.setDescription(bookEntryDescription);
-        bookEntry.setValue(Money.of(random.nextInt()/100.0, "BRL"));
+        bookEntry.setValue(Money.of( Math.abs(random.nextInt()/100.0), "BRL"));
         bookEntry.setBookEntryGroup(group1);
 
         long bookEntryId = createNewBookEntry(bookEntry, userToken);
