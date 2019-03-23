@@ -7,6 +7,7 @@ import javax.persistence.Column;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.MappedSuperclass;
+import javax.persistence.Version;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -30,6 +31,9 @@ public class TenantEntity {
     @JsonIgnore
     private Long tenantId;
 
+    @Version
+    private Integer version;
+
     public Long getTenantId() {
         return tenantId;
     }
@@ -37,4 +41,14 @@ public class TenantEntity {
     public void setTenantId(Long tenantId) {
         this.tenantId = tenantId;
     }
+
+    public Integer getVersion() {
+        return this.version;
+    }
+
+    public void setVersion(Integer version) {
+        this.version = version;
+    }
+
+    
 }
