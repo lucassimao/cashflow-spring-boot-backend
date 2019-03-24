@@ -1,6 +1,6 @@
 package com.lucassimao;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertFalse;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -8,22 +8,21 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.Map;
-
-import javax.persistence.EntityManager;
+import java.util.Map.Entry;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lucassimao.fluxodecaixa.FluxoDeCaixaApplication;
-import com.lucassimao.fluxodecaixa.model.BookEntry;
-import com.lucassimao.fluxodecaixa.model.BookEntryGroup;
-import com.lucassimao.fluxodecaixa.model.BookEntryType;
+import com.lucassimao.fluxodecaixa.repositories.TenantAwareRepository;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
@@ -46,61 +45,57 @@ public class SecurityTests{
     private ObjectMapper mapper;
 
     @Autowired
-    private TestUtils testUtils;
+	private ListableBeanFactory beanFactory;
 
-    @Autowired
-    private EntityManager entityManager;
-
-
-    @Before
-    public void setup() throws Exception {
-        long idUser = testUtils.criarUsuario("Lucas Simao", "papai@noel.com", "1234637463746$%$#$$");
-        String tokenUsuario = testUtils.doLogin("papai@noel.com", "1234637463746$%$#$$");
-        testUtils.setupBookEntryGroupAndBookEntry("bookEntryGroupDescription", BookEntryType.Expense, idUser, tokenUsuario, "bookEntryDescription");
-    }
-
+    /**
+     * Ensuring that unauthenticated requests for RepositoryRestResource implementing
+     * TenantAwareRepository are forbidden  
+     */
     @Test
-    public void requisicoesNaoAutenticadasNaoPodemUtilizarAPI() throws Exception {
-        BookEntry bookEntry = entityManager.createQuery("from BookEntry",BookEntry.class).getSingleResult();
-        assertNotNull(bookEntry);
-        assertNotNull(bookEntry.getBookEntryGroup());
+    public void unauthenticatedRequestsAreFobidden() {
 
-        long idBookEntry = bookEntry.getId(), idBookEntryGroup = bookEntry.getBookEntryGroup().getId(); 
+        Logger logger = org.slf4j.LoggerFactory.getLogger(SecurityTests.class);
 
-        mvc.perform(get("/bookEntryGroups")
-            .accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isForbidden());
-            
-        mvc.perform(post("/bookEntryGroups")
-            .content(mapper.writeValueAsString(new BookEntryGroup()))
-            .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isForbidden());
+        Map<String, Object> beansAnnotatedWithRepositoryRestResource = beanFactory.getBeansWithAnnotation(RepositoryRestResource.class);
+        beansAnnotatedWithRepositoryRestResource
+            .entrySet().stream().filter(entry -> entry.getValue() instanceof TenantAwareRepository)
+            .map(Entry::getKey)
+            .map( beanName -> beanFactory.findAnnotationOnBean( beanName , RepositoryRestResource.class))
+            .map(RepositoryRestResource::path)
+            .forEach(path -> {
 
-        mvc.perform(patch("/bookEntryGroups/" +idBookEntryGroup)
-            .content(mapper.writeValueAsString(Map.of("description", "edited by anonymous user")))
-            .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isForbidden());
+                try{
 
-        mvc.perform(delete("/bookEntryGroups/" +idBookEntryGroup))
-            .andExpect(status().isForbidden());              
+                    logger.debug("Testing endpoint resources at /{}",path);
 
-        mvc.perform(get("/bookEntries")
-            .accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isForbidden());   
-            
-        mvc.perform(post("/bookEntries")
-            .content(mapper.writeValueAsString(new BookEntry()))
-            .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isForbidden());
-        
-            
-        mvc.perform(patch("/bookEntries/" + idBookEntry)
-            .content(mapper.writeValueAsString(Map.of("description", "edited by anonymous user")))
-            .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isForbidden());
+                    mvc.perform(get("/" + path)
+                        .accept(MediaType.APPLICATION_JSON))
+                        .andExpect(status().isForbidden());
 
-        mvc.perform(delete("/bookEntries/" + idBookEntry))
-            .andExpect(status().isForbidden());            
+                    mvc.perform(get("/" + path + "/1")
+                        .accept(MediaType.APPLICATION_JSON))
+                        .andExpect(status().isForbidden());
+
+                    mvc.perform(post("/" + path)
+                        .content(mapper.writeValueAsString(Map.of("description", "created by anonymous user")))
+                        .contentType(MediaType.APPLICATION_JSON))
+                        .andExpect(status().isForbidden());
+
+                    mvc.perform(patch("/" + path + "/1")
+                        .content(mapper.writeValueAsString(Map.of("description", "edited by anonymous user")))
+                        .contentType(MediaType.APPLICATION_JSON))
+                        .andExpect(status().isForbidden());
+
+                    mvc.perform(delete("/" + path + "/1"))
+                        .andExpect(status().isForbidden());              
+
+                }catch(Exception e){
+                    e.printStackTrace();
+                    assertFalse(false);
+                }
+
+            });
+
 
     }
 }

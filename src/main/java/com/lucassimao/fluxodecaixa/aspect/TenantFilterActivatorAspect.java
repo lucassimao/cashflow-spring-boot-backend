@@ -17,12 +17,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class TenantFilterActivatorAspect {
 
-    @Before("execution(* com.lucassimao.fluxodecaixa.repositories.TenantAwareRepository+.*(..))") 
+    @Before("execution(* com.lucassimao.fluxodecaixa.repositories.TenantAwareRepository+.find*(..))") 
     public void before(JoinPoint joinPoint) {
         Logger logger = LoggerFactory.getLogger(TenantFilterActivatorAspect.class);
 
         Object target = joinPoint.getTarget();
-        logger.debug("Enabling filter for {} ", target);
+        logger.debug("Enabling filter for {} @ {}", target,joinPoint);
 
         TenantAwareRepository tenantAwareRepository = (TenantAwareRepository) joinPoint.getTarget();
         TenantAuthenticationToken tenantAuthenticationToken = (TenantAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
