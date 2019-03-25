@@ -17,8 +17,11 @@ in a webapp, using spring boot to implement the microservice on the backend and 
 - edit the properties __spring.datasource.url__, __spring.datasource.username__, __spring.datasource.password__ in the file  **src/main/resources/application.properties** and ensure they are properly configured for your enviroment. Property names are self explanatory.
 - Use the following commands to create the mysql server container and databases
 > docker pull mysql
+
 > docker run --name mysql-db -p 3306:3306 -e MYSQL_ROOT_PASSWORD= ? -e MYSQL_USER=app -e MYSQL_PASSWORD=123 -e MYSQL_DATABASE=cash_flow -d mysql
+
 > docker exec -it mysql-db mysql -u root -p -e "create database cash_flow_tests; grant all on cash_flow_tests.* to app"
+
 - If you have apache maven (3.1+) on your system's classpath, just run:
 > mvn spring-boot:run 
 - otherwise anf if you are on a linux box, run:
