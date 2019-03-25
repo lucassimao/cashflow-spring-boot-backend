@@ -65,17 +65,17 @@ public class BookEntryGroupRepositoryTests {
     @Autowired
     private EntityManager entityManager;
 
-    private Long idPrimeiroUsuario, idSegundoUsuario;
+    private Long firstuserId, secondUserId;
 
-    private String tokenPrimeiroUsuario, tokenSegundoUsuario;
+    private String firstUserToken, secondUserToken;
 
     private BookEntryGroup group2, group1;
 
     /**
-     * Antes de cada teste: - cadastra 2 usuários, armazenando o login dos mesmos -
-     * realiza o login de cada um e armazena os tokens de autenticação - faz o
-     * cadastro de 2 BookEntryGroup, um p/ cada usuario e guarda referencia pra cada
-     * um
+     * Before each test
+     *  - registering 2 users
+     *  - authenticating both users and storing their authentication tokens
+     *  - registering one BookEntryGroup for each user
      * 
      * @throws JsonProcessingException
      * @throws Exception
@@ -84,11 +84,11 @@ public class BookEntryGroupRepositoryTests {
     public void setup() throws JsonProcessingException, Exception {
         Pattern pattern = Pattern.compile("http://localhost(:\\d+)?/bookEntryGroups/(\\d+)$");
 
-        this.idPrimeiroUsuario = testUtils.criarUsuario("Lucas Simao", "lsimaocosta@gmail.com", "123");
-        this.tokenPrimeiroUsuario = testUtils.doLogin("lsimaocosta@gmail.com", "123");
+        this.firstuserId = testUtils.registerNewUser("Lucas Simao", "lsimaocosta@gmail.com", "123");
+        this.firstUserToken = testUtils.doLogin("lsimaocosta@gmail.com", "123");
 
-        this.idSegundoUsuario = testUtils.criarUsuario("xpto da silva", "xpto@gmail.com", "123");
-        this.tokenSegundoUsuario = testUtils.doLogin("xpto@gmail.com", "123");
+        this.secondUserId = testUtils.registerNewUser("xpto da silva", "xpto@gmail.com", "123");
+        this.secondUserToken = testUtils.doLogin("xpto@gmail.com", "123");
 
         this.group1 = new BookEntryGroup();
         group1.setDescription("Credit Card bill - 1st user");
@@ -96,7 +96,7 @@ public class BookEntryGroupRepositoryTests {
 
         HttpServletResponse response1 = mvc
                 .perform(post("/bookEntryGroups").content(mapper.writeValueAsString(group1))
-                        .header("Authorization", tokenPrimeiroUsuario).contentType(MediaType.APPLICATION_JSON))
+                        .header("Authorization", firstUserToken).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated()).andReturn().getResponse();
 
         Matcher matcher = pattern.matcher(response1.getHeader("Location"));
@@ -110,7 +110,7 @@ public class BookEntryGroupRepositoryTests {
 
         HttpServletResponse response2 = mvc
                 .perform(post("/bookEntryGroups").content(mapper.writeValueAsString(group2))
-                        .header("Authorization", tokenSegundoUsuario).contentType(MediaType.APPLICATION_JSON))
+                        .header("Authorization", secondUserToken).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated()).andReturn().getResponse();
 
         matcher = pattern.matcher(response2.getHeader("Location"));
@@ -120,35 +120,33 @@ public class BookEntryGroupRepositoryTests {
     }
 
     /**
-     * Averiguando se cada instancia cadastrada de BookEntryGroup tem o tenantId ==
-     * id do usuario que criou
+     * Finding out if each BookEntryGroup registered has the tenantId property equals to the id of the logged in user
      * 
      * @throws Exception
      */
     @Test
-    public void verificandoTenantIdDeCadaBookEntryGroup() throws Exception {
+    public void checkingTenantId() throws Exception {
 
         Optional<BookEntryGroup> optional = Optional
                 .ofNullable(entityManager.find(BookEntryGroup.class, this.group1.getId()));
         assertTrue(optional.isPresent());
-        assertEquals(this.idPrimeiroUsuario, optional.get().getTenantId());
+        assertEquals(this.firstuserId, optional.get().getTenantId());
 
         optional = Optional.ofNullable(entityManager.find(BookEntryGroup.class, this.group2.getId()));
         assertTrue(optional.isPresent());
-        assertEquals(this.idSegundoUsuario, optional.get().getTenantId());
+        assertEquals(this.secondUserId, optional.get().getTenantId());
     }
 
     /**
-     * Testando se usuario consegue ler BookEntryGroup cadastrados por outros
-     * usuários
+     * Testing if a user can read BookEntryGroup registered by another users
      * 
      * @throws Exception
      */
     @Test
     public void userCanReadOnlyHisOwnBookEntryGroups() throws Exception {
 
-        // usuario #1 tenta requisitar todos e so recebe os que ele cadastrou
-        mvc.perform(get("/bookEntryGroups").header("Authorization", tokenPrimeiroUsuario)
+        // user #1 tries to request all book entry groups and only receives the ones registered by himself
+        mvc.perform(get("/bookEntryGroups").header("Authorization", firstUserToken)
                 .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaTypes.HAL_JSON_UTF8))
                 .andExpect(jsonPath("_embedded.bookEntryGroups.length()", is(1)))
@@ -156,13 +154,12 @@ public class BookEntryGroupRepositoryTests {
                 .andExpect(jsonPath("_embedded.bookEntryGroups[0]._links.self.href",
                         endsWith("bookEntryGroups/" + this.group1.getId())));
 
-        // usuário #1 tentando requisitar BookEntryGroup cadastrado pelo usuário #2 - n
-        // deve conseguir
-        mvc.perform(get("/bookEntryGroups/" + this.group2.getId()).header("Authorization", tokenPrimeiroUsuario)
+        // user #1 can't request BookEntryGroup registered by user #2
+        mvc.perform(get("/bookEntryGroups/" + this.group2.getId()).header("Authorization", firstUserToken)
                 .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isNotFound());
 
-        // usuario #2 tenta requisitar todos e so recebe os que ele cadastrou
-        mvc.perform(get("/bookEntryGroups").header("Authorization", tokenSegundoUsuario)
+        // user #2 tries to request all book entry groups and only receives the ones registered by himself
+        mvc.perform(get("/bookEntryGroups").header("Authorization", secondUserToken)
                 .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaTypes.HAL_JSON_UTF8))
                 .andExpect(jsonPath("_embedded.bookEntryGroups.length()", is(1)))
@@ -170,73 +167,69 @@ public class BookEntryGroupRepositoryTests {
                 .andExpect(jsonPath("_embedded.bookEntryGroups[0]._links.self.href",
                         endsWith("bookEntryGroups/" + this.group2.getId())));
 
-        // usuário #2 tentando requisitar BookEntryGroup cadastrado pelo usuário #1 - n
-        // deve conseguir
-        mvc.perform(get("/bookEntryGroups/" + this.group1.getId()).header("Authorization", tokenSegundoUsuario)
+        // user #2 can't request BookEntryGroup registered by user #2
+        mvc.perform(get("/bookEntryGroups/" + this.group1.getId()).header("Authorization", secondUserToken)
                 .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isNotFound());
     }
 
     /**
-     * Testando se usuario consegue editar BookEntryGroup cadastrados por outros
-     * usuários
+     * Testing if user can edit BookEntryGroup registered by a different user
      * 
      * @throws Exception
      */
     @Test
     public void userCanEditOnlyHisOwnBookEntryGroups() throws Exception {
 
-        // usuario #1 deve conseguir atualizar BookEntryGroup que ele cadastrou
+        // user #1 can edit a book entry group registered by himself
         mvc.perform(patch("/bookEntryGroups/" + this.group1.getId())
                 .content(mapper.writeValueAsString(Map.of("description", "Credit Card bill - edited by 1st user")))
-                .header("Authorization", tokenPrimeiroUsuario).contentType(MediaType.APPLICATION_JSON))
+                .header("Authorization", firstUserToken).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
 
-        // usuario #1 NÃO deve conseguir atualizar BookEntryGroup que usuario #2
-        // cadastrou
+        // user #1 can't edit a book entry group registered by user #2
         mvc.perform(patch("/bookEntryGroups/" + this.group2.getId())
                 .content(mapper.writeValueAsString(Map.of("description", "hacked by 1st user")))
-                .header("Authorization", tokenPrimeiroUsuario).contentType(MediaType.APPLICATION_JSON))
+                .header("Authorization", firstUserToken).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
 
-        // usuario #2 NÃO deve conseguir atualizar BookEntryGroup que usuario #1
-        // cadastrou
+        // user #2 can't edit a book entry group registered by user #1
         mvc.perform(patch("/bookEntryGroups/" + this.group1.getId())
                 .content(mapper.writeValueAsString(Map.of("description", "hacked by 2nd user")))
-                .header("Authorization", tokenSegundoUsuario).contentType(MediaType.APPLICATION_JSON))
+                .header("Authorization", secondUserToken).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
 
-        // usuario #2 deve conseguir atualizar BookEntryGroup que ele cadastrou
+        // user #2 can edit a book entry group registered by himself
         mvc.perform(patch("/bookEntryGroups/" + this.group2.getId())
                 .content(mapper.writeValueAsString(Map.of("description", "Eletric bill - edited by 2nd user")))
-                .header("Authorization", tokenSegundoUsuario).contentType(MediaType.APPLICATION_JSON))
+                .header("Authorization", secondUserToken).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
 
     }
 
     @Test
     public void user1CanDeleteHisOwnBookEntryGroups() throws JsonProcessingException, Exception {
-        // usuario #1 deve conseguir excluir BookEntryGroup que ele cadastrou
-        mvc.perform(delete("/bookEntryGroups/" + this.group1.getId()).header("Authorization", tokenPrimeiroUsuario))
+        // user #1 can delete  BookEntryGroup registered by himself
+        mvc.perform(delete("/bookEntryGroups/" + this.group1.getId()).header("Authorization", firstUserToken))
                 .andExpect(status().isNoContent());
 
-        // usuario #1 NÃO deve conseguir excluir BookEntryGroup que usuario #2 cadastrou
-        mvc.perform(delete("/bookEntryGroups/" + this.group2.getId()).header("Authorization", tokenPrimeiroUsuario))
+        // user #1 can't delete  BookEntryGroup registered by user #2
+        mvc.perform(delete("/bookEntryGroups/" + this.group2.getId()).header("Authorization", firstUserToken))
                 .andExpect(status().isNotFound());
     }
 
     @Test
     public void user2CanDeleteHisOwnBookEntryGroups() throws JsonProcessingException, Exception {
-        // usuario #2 deve conseguir excluir BookEntryGroup que ele cadastrou
-        mvc.perform(delete("/bookEntryGroups/" + this.group2.getId()).header("Authorization", tokenSegundoUsuario))
+        // user #2 can delete  BookEntryGroup registered by himself
+        mvc.perform(delete("/bookEntryGroups/" + this.group2.getId()).header("Authorization", secondUserToken))
                 .andExpect(status().isNoContent());
 
-        // usuario #2 NÃO deve conseguir excluir BookEntryGroup que usuario #1 cadastrou
-        mvc.perform(delete("/bookEntryGroups/" + this.group1.getId()).header("Authorization", tokenSegundoUsuario))
+        // user #2 can't delete  BookEntryGroup registered by user #1
+        mvc.perform(delete("/bookEntryGroups/" + this.group1.getId()).header("Authorization", secondUserToken))
                 .andExpect(status().isNotFound());
     }
 
     @Test
-    public void testandoAcessoPaginado() throws Exception {
+    public void testingPaginatedAccess() throws Exception {
 
         IntStream.range(0, 199).forEach(index -> {
 
@@ -247,11 +240,11 @@ public class BookEntryGroupRepositoryTests {
             try {
                 if (index < 99)
                     mvc.perform(post("/bookEntryGroups").content(mapper.writeValueAsString(group))
-                            .header("Authorization", tokenPrimeiroUsuario).contentType(MediaType.APPLICATION_JSON))
+                            .header("Authorization", firstUserToken).contentType(MediaType.APPLICATION_JSON))
                             .andExpect(status().isCreated());
 
                 mvc.perform(post("/bookEntryGroups").content(mapper.writeValueAsString(group))
-                        .header("Authorization", tokenSegundoUsuario).contentType(MediaType.APPLICATION_JSON))
+                        .header("Authorization", secondUserToken).contentType(MediaType.APPLICATION_JSON))
                         .andExpect(status().isCreated());
 
             } catch (Exception e) {
@@ -261,15 +254,15 @@ public class BookEntryGroupRepositoryTests {
 
         });
 
-        // usuario #1 tenta requisitar todos e so recebe os que ele cadastrou
-        mvc.perform(get("/bookEntryGroups").header("Authorization", tokenPrimeiroUsuario)
+        // usuario #1 tries to request all book entry groups and only receives the one registered by himself
+        mvc.perform(get("/bookEntryGroups").header("Authorization", firstUserToken)
                 .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaTypes.HAL_JSON_UTF8))
                 .andExpect(jsonPath("page.size", is(20))).andExpect(jsonPath("page.totalPages", is(5)))
                 .andExpect(jsonPath("page.totalElements", is(100)));
 
-        // usuario #2 tenta requisitar todos e so recebe os que ele cadastrou
-        mvc.perform(get("/bookEntryGroups").header("Authorization", tokenSegundoUsuario)
+        // usuario #2 tries to request all book entry groups and only receives the one registered by himself
+        mvc.perform(get("/bookEntryGroups").header("Authorization", secondUserToken)
                 .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaTypes.HAL_JSON_UTF8))
                 .andExpect(jsonPath("page.size", is(20))).andExpect(jsonPath("page.totalPages", is(10)))

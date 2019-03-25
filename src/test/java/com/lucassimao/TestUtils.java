@@ -57,15 +57,15 @@ public class TestUtils{
     }
 
     /**
-     * Cadastra novo usuário no banco de dados
+     * Sign up a new user
      * 
-     * @param name Nome do usuário
-     * @param login login para autenticação
-     * @param password senha
-     * @return pk do usuário no banco de dados
+     * @param name user name
+     * @param login user login
+     * @param password password
+     * @return user primary key
      * @throws Exception
      */
-    public Long criarUsuario(String name, String login, String password) throws Exception {
+    public Long registerNewUser(String name, String login, String password) throws Exception {
         Map<String, String> usuario = Map.of("name", name, "email", login, "password", password);
 
         HttpServletResponse response = mvc.perform(post("/users")

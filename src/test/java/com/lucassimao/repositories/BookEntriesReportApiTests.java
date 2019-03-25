@@ -54,8 +54,8 @@ public class BookEntriesReportApiTests {
     @Before
     public void setup() throws Exception {
 
-        this.testUtils.criarUsuario("1st user", "usuario-1@bookEntriesReportApiTests.com", "4242424242");
-        this.testUtils.criarUsuario("2nd user", "usuario-2@bookEntriesReportApiTests.com", "123321");
+        this.testUtils.registerNewUser("1st user", "usuario-1@bookEntriesReportApiTests.com", "4242424242");
+        this.testUtils.registerNewUser("2nd user", "usuario-2@bookEntriesReportApiTests.com", "123321");
 
         this.authTokenUser1 = this.testUtils.doLogin("usuario-1@bookEntriesReportApiTests.com", "4242424242");
         this.authTokenUser2 = this.testUtils.doLogin("usuario-2@bookEntriesReportApiTests.com", "123321");

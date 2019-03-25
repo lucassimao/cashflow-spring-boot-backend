@@ -71,10 +71,10 @@ public class GoalRepositoryTests {
 
     @Before
     public void setup() throws JsonProcessingException, Exception {
-        long idPrimeiroUsuario = testUtils.criarUsuario("Lucas Simao", "papai@noel.com", "1234637463746$%$#$$");
+        long idPrimeiroUsuario = testUtils.registerNewUser("Lucas Simao", "papai@noel.com", "1234637463746$%$#$$");
         this.firstUserToken = testUtils.doLogin("papai@noel.com", "1234637463746$%$#$$");
 
-        long idSegundoUsuario = testUtils.criarUsuario("xpto da silva", "xpto@gmail.com", "123");
+        long idSegundoUsuario = testUtils.registerNewUser("xpto da silva", "xpto@gmail.com", "123");
         this.secondUserToken = testUtils.doLogin("xpto@gmail.com", "123");
 
         BookEntryGroup group1 = new BookEntryGroup();

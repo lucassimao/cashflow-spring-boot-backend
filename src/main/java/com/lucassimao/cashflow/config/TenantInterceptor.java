@@ -13,7 +13,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
- * Hibernate interceptor used to set tenantId on subclasses of
+ * Hibernate interceptor used to set tenantId property on subclasses of
  * com.lucassimao.cashflow.model.TenantEntity
  * 
  * @since 10/01/19

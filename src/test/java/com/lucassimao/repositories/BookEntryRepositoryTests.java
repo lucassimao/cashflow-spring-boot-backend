@@ -50,43 +50,43 @@ public class BookEntryRepositoryTests {
     @Autowired
     private TestUtils testUtils;
 
-    private String tokenPrimeiroUsuario, tokenSegundoUsuario;
+    private String firstUserToken, secondUserToken;
     private BookEntry bookEntry1, bookEntry2;
    
 
     /**
-     * Antes de cada teste: - cadastra 2 usuários, armazenando o login dos mesmos -
-     * realiza o login de cada um e armazena os tokens de autenticação - faz o
-     * cadastro de 2 BookEntryGroup, um p/ cada usuario - faz o cadastro de 2
-     * BookEntry, um p/ cada usuario e guarda referencia pra cada um
+     * Before each test:
+     *  - register 2 new users
+     *  - authenticate each user and storing the authentication tokens returned to be used on further requests
+     *  - for each user, register a new BookEntryGroup and BookEntry
      * 
      * @throws JsonProcessingException
      * @throws Exception
      */
     @Before
     public void setup() throws JsonProcessingException, Exception {
-        long idPrimeiroUsuario = testUtils.criarUsuario("Lucas Simao", "papai@noel.com", "1234637463746$%$#$$");
-        this.tokenPrimeiroUsuario = testUtils.doLogin("papai@noel.com", "1234637463746$%$#$$");
+        long idPrimeiroUsuario = testUtils.registerNewUser("Lucas Simao", "papai@noel.com", "1234637463746$%$#$$");
+        this.firstUserToken = testUtils.doLogin("papai@noel.com", "1234637463746$%$#$$");
 
-        long idSegundoUsuario = testUtils.criarUsuario("xpto da silva", "xpto@gmail.com", "123");
-        this.tokenSegundoUsuario = testUtils.doLogin("xpto@gmail.com", "123");
+        long idSegundoUsuario = testUtils.registerNewUser("xpto da silva", "xpto@gmail.com", "123");
+        this.secondUserToken = testUtils.doLogin("xpto@gmail.com", "123");
 
-        this.bookEntry1 = testUtils.setupBookEntryGroupAndBookEntry("Fatura de Cartão de Crédito",BookEntryType.Expense,idPrimeiroUsuario, tokenPrimeiroUsuario,"Pagamento do cartão de crédito");
-        this.bookEntry2 = testUtils.setupBookEntryGroupAndBookEntry("Pagamentos a Receber",BookEntryType.Income,idSegundoUsuario, tokenSegundoUsuario,"Boleto do cliente #12345");
+        this.bookEntry1 = testUtils.setupBookEntryGroupAndBookEntry("Fatura de Cartão de Crédito",BookEntryType.Expense,idPrimeiroUsuario, firstUserToken,"Pagamento do cartão de crédito");
+        this.bookEntry2 = testUtils.setupBookEntryGroupAndBookEntry("Pagamentos a Receber",BookEntryType.Income,idSegundoUsuario, secondUserToken,"Boleto do cliente #12345");
     }
 
 
 
     /**
-     * Testando se usuario consegue ler BookEntry cadastrados por outros usuários
+     * Testing if an user can read BookEntry entities created by a different user
      * @throws Exception
      */
     @Test
     public void userCanReadOnlyHisOwnBookEntries() throws Exception {
 
-        // usuario #1 tenta requisitar todos e so recebe os que ele cadastrou
+        // user #1 tries to request all book entries and only receives the entities registered by himself
         mvc.perform(get("/bookEntries")
-            .header("Authorization", tokenPrimeiroUsuario)
+            .header("Authorization", firstUserToken)
             .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(content().contentTypeCompatibleWith(MediaTypes.HAL_JSON_UTF8))
@@ -94,15 +94,15 @@ public class BookEntryRepositoryTests {
             .andExpect(jsonPath("_embedded.bookEntries[0].description", is(bookEntry1.getDescription())))
             .andExpect(jsonPath("_embedded.bookEntries[0]._links.self.href", endsWith("bookEntries/" + this.bookEntry1.getId())));
 
-       // usuário #1 tentando requisitar BookEntryGroup cadastrado pelo usuário #2 - n deve conseguir
+       // user #1 sends a request for a BookEntry registered by the user #2 and receives a NotFound response
        mvc.perform(get("/bookEntries/" + this.bookEntry2.getId())
-            .header("Authorization", tokenPrimeiroUsuario)
+            .header("Authorization", firstUserToken)
             .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isNotFound());
 
-        // usuario #2 tenta requisitar todos e so recebe os que ele cadastrou
+        // user #2 tries to request all book entries and only receives the entities registered by himself
         mvc.perform(get("/bookEntries")
-            .header("Authorization", tokenSegundoUsuario)
+            .header("Authorization", secondUserToken)
             .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(content().contentTypeCompatibleWith(MediaTypes.HAL_JSON_UTF8))
@@ -110,46 +110,46 @@ public class BookEntryRepositoryTests {
             .andExpect(jsonPath("_embedded.bookEntries[0].description", is(bookEntry2.getDescription())))
             .andExpect(jsonPath("_embedded.bookEntries[0]._links.self.href", endsWith("bookEntries/" + this.bookEntry2.getId())));
 
-       // usuário #2 tentando requisitar BookEntryGroup cadastrado pelo usuário #1 - n deve conseguir
+       // user #2 sends a request for a BookEntry registered by the user #2 and receives a NotFound response
        mvc.perform(get("/bookEntries/" + this.bookEntry1.getId())
-            .header("Authorization", tokenSegundoUsuario)
+            .header("Authorization", secondUserToken)
             .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isNotFound());            
     }
 
 
     /**
-     * Testando se usuario consegue editar BookEntries cadastrados por outros usuários
+     * Testing if a user can edit BookEntries not created by himself
      * @throws Exception
      */
     @Test
     public void userCanEditOnlyHisOwnBookEntryGroups() throws Exception {
    
-        // usuario #1 deve conseguir atualizar BookEntry que ele cadastrou
+        // user #1 can update the BookEntry registered by himself
         mvc.perform(patch("/bookEntries/"+ this.bookEntry1.getId())
             .content(mapper.writeValueAsString(Map.of("description", "edited by 1st user")))
-            .header("Authorization", tokenPrimeiroUsuario)
+            .header("Authorization", firstUserToken)
             .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isNoContent());
 
-        // usuario #1 NÃO deve conseguir atualizar BookEntry que usuario #2 cadastrou
+        // user #1 can't update the BookEntry registered by the user #2
         mvc.perform(patch("/bookEntries/"+ this.bookEntry2.getId())
             .content(mapper.writeValueAsString(Map.of("description", "hacked by 1st user")))
-            .header("Authorization", tokenPrimeiroUsuario)
+            .header("Authorization", firstUserToken)
             .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isNotFound());       
             
-        // usuario #2 NÃO deve conseguir atualizar BookEntry que usuario #1 cadastrou
+        // user #2 can't update the BookEntry registered by the user #1
         mvc.perform(patch("/bookEntries/"+ this.bookEntry1.getId())
             .content(mapper.writeValueAsString(Map.of("description", "hacked by 2nd user")))
-            .header("Authorization", tokenSegundoUsuario)
+            .header("Authorization", secondUserToken)
             .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isNotFound());
 
-        // usuario #2 deve conseguir atualizar BookEntry que ele cadastrou
+        // user #2 can update the BookEntry registered by himself
         mvc.perform(patch("/bookEntries/"+ this.bookEntry2.getId())
             .content(mapper.writeValueAsString(Map.of("description", "edited by 2nd user")))
-            .header("Authorization", tokenSegundoUsuario)
+            .header("Authorization", secondUserToken)
             .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isNoContent());                
 
@@ -157,27 +157,27 @@ public class BookEntryRepositoryTests {
 
     @Test
     public void user1CanDeleteHisOwnBookEntryGroups() throws JsonProcessingException, Exception {
-        // usuario #1 deve conseguir excluir BookEntry que ele cadastrou
+        // user #1 can delete BookEntry registered by himself
         mvc.perform(delete("/bookEntryGroups/"+ this.bookEntry1.getId())
-            .header("Authorization", tokenPrimeiroUsuario))
+            .header("Authorization", firstUserToken))
             .andExpect(status().isNoContent());
 
-        // usuario #1 NÃO deve conseguir excluir BookEntry que usuario #2 cadastrou
+        // user #1 can't delete BookEntry registered by user #2
         mvc.perform(delete("/bookEntryGroups/"+ this.bookEntry2.getId())
-            .header("Authorization", tokenPrimeiroUsuario))
+            .header("Authorization", firstUserToken))
             .andExpect(status().isNotFound());   
     }
 
     @Test
     public void user2CanDeleteHisOwnBookEntryGroups() throws JsonProcessingException, Exception {
-        // usuario #2 deve conseguir excluir BookEntryGroup que ele cadastrou
+        // user #2 can delete BookEntry registered by himself
         mvc.perform(delete("/bookEntryGroups/"+ this.bookEntry2.getId())
-            .header("Authorization", tokenSegundoUsuario))
+            .header("Authorization", secondUserToken))
             .andExpect(status().isNoContent());
 
-        // usuario #2 NÃO deve conseguir excluir BookEntryGroup que usuario #1 cadastrou
+        // user #2 can't delete BookEntry registered by user #1
         mvc.perform(delete("/bookEntryGroups/"+ this.bookEntry1.getId())
-            .header("Authorization", tokenSegundoUsuario))
+            .header("Authorization", secondUserToken))
             .andExpect(status().isNotFound());   
     }    
 
