@@ -14,10 +14,10 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
 import com.lucassimao.TestUtils;
-import com.lucassimao.fluxodecaixa.FluxoDeCaixaApplication;
-import com.lucassimao.fluxodecaixa.model.BookEntry;
-import com.lucassimao.fluxodecaixa.model.BookEntryGroup;
-import com.lucassimao.fluxodecaixa.model.BookEntryType;
+import com.lucassimao.cashflow.FluxoDeCaixaApplication;
+import com.lucassimao.cashflow.model.BookEntry;
+import com.lucassimao.cashflow.model.BookEntryGroup;
+import com.lucassimao.cashflow.model.BookEntryType;
 
 import org.javamoney.moneta.Money;
 import org.junit.Before;
@@ -39,7 +39,7 @@ import org.springframework.test.web.servlet.MockMvc;
 @AutoConfigureMockMvc
 @TestPropertySource(locations = "classpath:application-integrationtest.properties")
 @DirtiesContext(classMode = ClassMode.BEFORE_EACH_TEST_METHOD)
-@ComponentScan(basePackages={"com.lucassimao.fluxodecaixa.config","com.lucassimao"})
+@ComponentScan(basePackages={"com.lucassimao.cashflow.config","com.lucassimao"})
 public class BookEntriesReportApiTests {
 
     @Autowired

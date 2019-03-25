@@ -15,9 +15,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.lucassimao.fluxodecaixa.model.BookEntry;
-import com.lucassimao.fluxodecaixa.model.BookEntryGroup;
-import com.lucassimao.fluxodecaixa.model.BookEntryType;
+import com.lucassimao.cashflow.model.BookEntry;
+import com.lucassimao.cashflow.model.BookEntryGroup;
+import com.lucassimao.cashflow.model.BookEntryType;
 
 import org.javamoney.moneta.Money;
 import org.springframework.beans.factory.annotation.Autowired;

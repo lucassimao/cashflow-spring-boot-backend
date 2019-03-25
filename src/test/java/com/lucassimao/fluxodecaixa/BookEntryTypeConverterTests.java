@@ -1,9 +1,9 @@
-package com.lucassimao.fluxodecaixa;
+package com.lucassimao.cashflow;
 
 import static org.junit.Assert.assertNotNull;
 
-import com.lucassimao.fluxodecaixa.converter.BookEntryTypeConverter;
-import com.lucassimao.fluxodecaixa.model.BookEntryType;
+import com.lucassimao.cashflow.converter.BookEntryTypeConverter;
+import com.lucassimao.cashflow.model.BookEntryType;
 
 import org.junit.Before;
 import org.junit.Test;

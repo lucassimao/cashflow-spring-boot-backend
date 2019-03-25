@@ -11,8 +11,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.lucassimao.fluxodecaixa.FluxoDeCaixaApplication;
-import com.lucassimao.fluxodecaixa.repositories.TenantAwareRepository;
+import com.lucassimao.cashflow.FluxoDeCaixaApplication;
+import com.lucassimao.cashflow.repositories.TenantAwareRepository;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,7 +35,7 @@ import org.springframework.test.web.servlet.MockMvc;
 @AutoConfigureMockMvc
 @TestPropertySource(locations = "classpath:application-integrationtest.properties")
 @DirtiesContext(classMode = ClassMode.BEFORE_EACH_TEST_METHOD)
-@ComponentScan(basePackages={"com.lucassimao.fluxodecaixa.config","com.lucassimao"})
+@ComponentScan(basePackages={"com.lucassimao.cashflow.config","com.lucassimao"})
 public class SecurityTests{
 
 	@Autowired

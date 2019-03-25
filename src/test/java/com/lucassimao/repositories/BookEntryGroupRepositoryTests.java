@@ -25,9 +25,9 @@ import javax.servlet.http.HttpServletResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lucassimao.TestUtils;
-import com.lucassimao.fluxodecaixa.FluxoDeCaixaApplication;
-import com.lucassimao.fluxodecaixa.model.BookEntryGroup;
-import com.lucassimao.fluxodecaixa.model.BookEntryType;
+import com.lucassimao.cashflow.FluxoDeCaixaApplication;
+import com.lucassimao.cashflow.model.BookEntryGroup;
+import com.lucassimao.cashflow.model.BookEntryType;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -50,7 +50,7 @@ import org.springframework.test.web.servlet.MockMvc;
 @AutoConfigureMockMvc
 @TestPropertySource(locations = "classpath:application-integrationtest.properties")
 @DirtiesContext(classMode = ClassMode.BEFORE_EACH_TEST_METHOD)
-@ComponentScan(basePackages={"com.lucassimao.fluxodecaixa.config","com.lucassimao"})
+@ComponentScan(basePackages={"com.lucassimao.cashflow.config","com.lucassimao"})
 public class BookEntryGroupRepositoryTests {
 
     @Autowired

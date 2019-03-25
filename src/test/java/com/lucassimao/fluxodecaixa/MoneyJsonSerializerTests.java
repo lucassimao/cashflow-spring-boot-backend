@@ -1,4 +1,4 @@
-package com.lucassimao.fluxodecaixa;
+package com.lucassimao.cashflow;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
