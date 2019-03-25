@@ -24,7 +24,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lucassimao.TestUtils;
-import com.lucassimao.cashflow.FluxoDeCaixaApplication;
+import com.lucassimao.cashflow.CashFlowApplication;
 import com.lucassimao.cashflow.model.BookEntry;
 import com.lucassimao.cashflow.model.BookEntryGroup;
 import com.lucassimao.cashflow.model.BookEntryType;
@@ -50,7 +50,7 @@ import org.springframework.test.web.servlet.MockMvc;
 @DirtiesContext(classMode = ClassMode.BEFORE_EACH_TEST_METHOD)
 @ComponentScan(basePackages = { "com.lucassimao.cashflow.config", "com.lucassimao" })
 @TestPropertySource(locations = "classpath:application-integrationtest.properties")
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = FluxoDeCaixaApplication.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = CashFlowApplication.class)
 @AutoConfigureMockMvc
 public class GoalRepositoryTests {
 

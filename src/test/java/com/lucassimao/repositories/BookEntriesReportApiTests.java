@@ -14,7 +14,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
 import com.lucassimao.TestUtils;
-import com.lucassimao.cashflow.FluxoDeCaixaApplication;
+import com.lucassimao.cashflow.CashFlowApplication;
 import com.lucassimao.cashflow.model.BookEntry;
 import com.lucassimao.cashflow.model.BookEntryGroup;
 import com.lucassimao.cashflow.model.BookEntryType;
@@ -35,7 +35,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = FluxoDeCaixaApplication.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = CashFlowApplication.class)
 @AutoConfigureMockMvc
 @TestPropertySource(locations = "classpath:application-integrationtest.properties")
 @DirtiesContext(classMode = ClassMode.BEFORE_EACH_TEST_METHOD)
