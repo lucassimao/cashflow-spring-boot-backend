@@ -15,6 +15,7 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.lucassimao.cashflow.config.TenantAuthenticationToken;
 import com.lucassimao.cashflow.config.TenantUserDetails;
+import com.lucassimao.cashflow.model.User;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +44,7 @@ public class TokenAuthenticationService {
                                         .withExpiresAt(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
                                         .withSubject(username);
         
-        boolean isAdmin = authorities.stream().anyMatch(authority -> "ADMIN".equals(authority.getAuthority())); 
+        boolean isAdmin = authorities.stream().anyMatch(authority -> User.ROLE_ADMIN.equals(authority.getAuthority())); 
         String token = builder.withClaim(TENANT_ID_CLAIM, userDetail.getTenantId())
                               .withClaim(IS_ADMIN_CLAIM, isAdmin)
                               .sign(algorithm);
@@ -66,9 +67,9 @@ public class TokenAuthenticationService {
                 if (username != null) {
                     Collection<GrantedAuthority> authorities;
                     if (jwt.getClaim(IS_ADMIN_CLAIM).asBoolean())
-                        authorities = List.of(new SimpleGrantedAuthority("ADMIN"));
+                        authorities = List.of(new SimpleGrantedAuthority(User.ROLE_ADMIN));
                     else
-                        authorities = List.of(new SimpleGrantedAuthority("USER"));
+                        authorities = List.of(new SimpleGrantedAuthority(User.ROLE_USER));
                         
                     Long tenantId = jwt.getClaim(TENANT_ID_CLAIM).asLong();
                     return new TenantAuthenticationToken( tenantId, username, null, authorities);

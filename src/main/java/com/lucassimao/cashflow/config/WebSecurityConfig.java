@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.EventListener;
@@ -24,6 +25,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -54,24 +56,25 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter{
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+
+        http.addFilterBefore(new JWTLoginFilter("/login", authenticationManager()),UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(new JWTAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+
         http
             .sessionManagement()
-                .disable()
-                // .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                // .and()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
             .authorizeRequests()
-                .antMatchers(HttpMethod.POST, "/users/**").permitAll()
                 .antMatchers(HttpMethod.POST, "/login").permitAll()
+                .antMatchers(HttpMethod.POST, "/users").permitAll()
+                .antMatchers(HttpMethod.GET, "/users").hasAuthority(User.ROLE_ADMIN)
                 .anyRequest().authenticated()
                 .and()
-                    .addFilterBefore(new JWTLoginFilter("/login", authenticationManager()),UsernamePasswordAuthenticationFilter.class)
-                    .addFilterBefore(new JWTAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)      
-                .httpBasic().disable()
+                    .httpBasic().disable()
                 .cors()
                 .and()
-                .requestCache().disable()
+                    .requestCache().disable()
                 .logout().disable()
-                // .anonymous().disable()
                 .csrf().disable();
     }
 
@@ -107,7 +110,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter{
             Logger logger = LoggerFactory.getLogger(WebSecurityConfig.class);
             usu = new User();
             usu.setName("admin da silva");
-            usu.setRole("ADMIN");
+            usu.setRole(User.ROLE_ADMIN);
             usu.setEncryptedPassword(encoder().encode("123"));
             usu.setEmail("admin@mycashflow.com");
             ((CrudRepository<User,Long>)usuarioRepository).save(usu);
@@ -134,5 +137,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter{
     }    
 
     
+    @Bean
+    public FilterRegistrationBean<UserFilter> userFilter(){
+        FilterRegistrationBean<UserFilter> registrationBean = new FilterRegistrationBean<>();
+        registrationBean.setFilter(new UserFilter());
+        registrationBean.addUrlPatterns("/users/*");
+        registrationBean.setOrder(1);
+        return registrationBean;    
+    }    
 
 }

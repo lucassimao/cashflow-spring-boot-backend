@@ -36,7 +36,8 @@ public class TenantInterceptor extends EmptyInterceptor {
     @Override
     public boolean onFlushDirty(Object entity, Serializable id, Object[] currentState, Object[] previousState,
             String[] propertyNames, Type[] types) {
-        validateTenantState(currentState, propertyNames);
+        if (entity instanceof TenantEntity)
+                validateTenantState(currentState, propertyNames);
         return false;
     }
 

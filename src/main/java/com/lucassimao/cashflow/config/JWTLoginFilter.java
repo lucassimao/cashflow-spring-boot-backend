@@ -40,10 +40,9 @@ public class JWTLoginFilter extends AbstractAuthenticationProcessingFilter {
                 Map<String, String> credentials = new ObjectMapper().readValue(request.getInputStream(), typeRef);
                 String password = credentials.get("password");
                 String username = credentials.get("username");
-                Authentication auth = new UsernamePasswordAuthenticationToken(username, password);
-        
-                LoggerFactory.getLogger(JWTLoginFilter.class).debug("auth criada {} ", auth);
 
+                Authentication auth = new UsernamePasswordAuthenticationToken(username, password);
+                LoggerFactory.getLogger(JWTLoginFilter.class).debug("auth criada {} ", auth);
                 return getAuthenticationManager().authenticate(auth);
 
             } catch (IOException e) {

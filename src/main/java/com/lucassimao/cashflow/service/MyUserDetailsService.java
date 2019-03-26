@@ -3,6 +3,7 @@ package com.lucassimao.cashflow.service;
 import com.lucassimao.cashflow.config.TenantUserDetails;
 import com.lucassimao.cashflow.repositories.UserRepository;
 
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -24,10 +25,11 @@ public class MyUserDetailsService implements UserDetailsService {
       }
 
       UserDetails userDetails = User.builder().username(username)
-                                    .roles(usu.getRole())
+                                    .authorities(usu.getRole())
                                     .password(usu.getEncryptedPassword())
                                     .build();
 
+      LoggerFactory.getLogger(MyUserDetailsService.class).debug("building userDetails {} ", userDetails);
       return new TenantUserDetails(usu.getId(), userDetails);
   }
 

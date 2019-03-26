@@ -23,6 +23,11 @@ public class  CustomUserRepositoryImpl implements CustomUserRepository  {
     private PasswordEncoder passwordEncoder;
 
     @Override
+    public EntityManager getEntityManager() {
+        return this.entityManager;
+    }
+
+    @Override
     public <S extends User> S save(S entity) {
         Logger logger = LoggerFactory.getLogger(CustomUserRepositoryImpl.class);
         logger.debug("Registrando novo usuário {}",  entity);
