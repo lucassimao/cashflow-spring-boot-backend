@@ -1,6 +1,10 @@
 package com.lucassimao;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -10,8 +14,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.persistence.EntityManager;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lucassimao.cashflow.CashFlowApplication;
+import com.lucassimao.cashflow.model.User;
 import com.lucassimao.cashflow.repositories.TenantAwareRepository;
 
 import org.junit.Test;
@@ -24,6 +31,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.http.MediaType;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.TestPropertySource;
@@ -45,7 +53,16 @@ public class SecurityTests{
     private ObjectMapper mapper;
 
     @Autowired
-	private ListableBeanFactory beanFactory;
+    private ListableBeanFactory beanFactory;
+    
+    @Autowired
+    private TestUtils testUtils;
+
+    @Autowired
+    private EntityManager entityManager;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     /**
      * Ensuring that unauthenticated requests for RepositoryRestResource implementing
@@ -95,7 +112,16 @@ public class SecurityTests{
                 }
 
             });
+    }
 
-
+    @Test
+    public void signupEndpointIsOpen() throws Exception {
+        long userId =  this.testUtils.registerNewUser("User 1","user1@cashflow.com","123");
+        assertNotNull(userId);
+        User user = this.entityManager.find(User.class, userId);
+        assertEquals("User 1",user.getName());
+        assertEquals("user1@cashflow.com",user.getEmail());
+        assertNotEquals("123",user.getEncryptedPassword());
+        assertTrue(this.passwordEncoder.matches("123", user.getEncryptedPassword()));
     }
 }
