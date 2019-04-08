@@ -2,6 +2,8 @@ package com.lucassimao.cashflow.config;
 
 import java.util.Collection;
 
+import com.lucassimao.cashflow.model.User;
+
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 
@@ -17,5 +19,9 @@ public class TenantAuthenticationToken extends UsernamePasswordAuthenticationTok
 
     public Long getTenantId() {
         return tenantId;
+    }
+
+    public boolean isAdmin() {
+        return getAuthorities().stream().anyMatch(authority -> User.ROLE_ADMIN.equals(authority.getAuthority())); 
     }
 }

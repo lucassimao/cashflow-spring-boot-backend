@@ -70,7 +70,7 @@ public class SecurityTests {
     private PasswordEncoder passwordEncoder;
 
     /**
-     * Ensuring that unauthenticated requests for RepositoryRestResource
+     * Ensuring unauthenticated requests for RepositoryRestResource
      * implementing TenantAwareRepository are forbidden
      */
     @Test
@@ -116,7 +116,7 @@ public class SecurityTests {
     }
 
     /**
-     * Ensuring that regular users can only fire up either a POST request to /users
+     * Ensuring regular users can only fire up either a POST request to /users
      * in order to sign up or a PATCH request to edit his own profile. All remaining
      * endpoints are available for admin users
      */
@@ -148,7 +148,7 @@ public class SecurityTests {
 
         String adminAuthToken =  this.testUtils.doLogin("admin@cashflow.com", "123");
 
-
+        // only users with ROLE_ADMIN can list all users
         this.mvc.perform(get("/users")).andExpect(status().isForbidden());
         this.mvc.perform(get("/users").header("Authorization", user1AuthToken)).andExpect(status().isForbidden());
         this.mvc.perform(get("/users").header("Authorization", adminAuthToken))
@@ -158,13 +158,23 @@ public class SecurityTests {
 
 
         this.mvc.perform(get("/users/" + userId)).andExpect(status().isForbidden());
+        // Besides admin users, normal users can only read his own personal information
         this.mvc.perform(get("/users/" + userId).header("Authorization", user1AuthToken))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaTypes.HAL_JSON_UTF8))
                 .andExpect(jsonPath("id", is((int)userId)));
-
+        // admin user can read user 1 infromations
+        this.mvc.perform(get("/users/" + userId).header("Authorization", adminAuthToken))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaTypes.HAL_JSON_UTF8))
+                .andExpect(jsonPath("id", is((int)userId)));  
+        // user 1 can't read user2 informations
         this.mvc.perform(get("/users/" + user2Id).header("Authorization", user1AuthToken))
                 .andExpect(status().isForbidden());
-
+        // admin user can read user 2 infromations
+        this.mvc.perform(get("/users/" + user2Id).header("Authorization", adminAuthToken))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaTypes.HAL_JSON_UTF8))
+                .andExpect(jsonPath("id", is((int)user2Id)));                                
     }
 }

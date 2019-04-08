@@ -28,7 +28,6 @@ public class UserFilter implements Filter {
 
         if (authentication != null && authentication instanceof TenantAuthenticationToken) {
             TenantAuthenticationToken tenantAuthenticationToken = (TenantAuthenticationToken) authentication;
-            HttpServletResponse res = (HttpServletResponse) response;
             HttpServletRequest req = (HttpServletRequest) request;
             logger.info("Request URI {} ", req.getRequestURI());
 
@@ -36,7 +35,8 @@ public class UserFilter implements Filter {
             Matcher matcher = pattern.matcher(req.getRequestURI());
             if(matcher.matches()){
                 long id = Long.valueOf(matcher.group(1));
-                if (!tenantAuthenticationToken.getTenantId().equals(id)){
+                if (! (tenantAuthenticationToken.getTenantId().equals(id) || tenantAuthenticationToken.isAdmin())){
+                    HttpServletResponse res = (HttpServletResponse) response;
                     res.sendError(HttpServletResponse.SC_FORBIDDEN);
                     return;
                 }
