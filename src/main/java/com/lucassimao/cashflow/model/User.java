@@ -25,7 +25,7 @@ import org.hibernate.annotations.CreationTimestamp;
         columnNames = "email",  name="uc_email"
     )
  })
-@JsonIgnoreProperties({"role"})
+@JsonIgnoreProperties(value={"role","signUpDate"},allowGetters=true)
 public class User {
     
     public static final String ROLE_USER = "USER";
