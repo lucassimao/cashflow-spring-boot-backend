@@ -158,16 +158,20 @@ public class SecurityTests {
 
 
         this.mvc.perform(get("/users/" + userId)).andExpect(status().isForbidden());
+        this.mvc.perform(get("/users/" + user2Id)).andExpect(status().isForbidden());
+
         // Besides admin users, normal users can only read his own personal information
         this.mvc.perform(get("/users/" + userId).header("Authorization", user1AuthToken))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaTypes.HAL_JSON_UTF8))
                 .andExpect(jsonPath("id", is((int)userId)));
+
         // admin user can read user 1 infromations
         this.mvc.perform(get("/users/" + userId).header("Authorization", adminAuthToken))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaTypes.HAL_JSON_UTF8))
                 .andExpect(jsonPath("id", is((int)userId)));  
+
         // user 1 can't read user2 informations
         this.mvc.perform(get("/users/" + user2Id).header("Authorization", user1AuthToken))
                 .andExpect(status().isForbidden());
@@ -175,6 +179,35 @@ public class SecurityTests {
         this.mvc.perform(get("/users/" + user2Id).header("Authorization", adminAuthToken))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaTypes.HAL_JSON_UTF8))
-                .andExpect(jsonPath("id", is((int)user2Id)));                                
+                .andExpect(jsonPath("id", is((int)user2Id)));   
+                
+        // user 1 can update only his own personal information
+        this.mvc.perform(patch("/users"))
+                 .andExpect(status().isForbidden());   
+        this.mvc.perform(patch("/users/" + user2Id).header("Authorization",user1AuthToken))
+                 .andExpect(status().isForbidden());     
+        this.mvc.perform(patch("/users/"+ userId)
+                        .header("Authorization",user1AuthToken)
+                        .content(this.mapper.writeValueAsString(Map.of("name", "User 1 Foo Bar da Silva")))
+                        .contentType(MediaType.APPLICATION_JSON))
+                        .andExpect(status().isNoContent());
+        
+        assertEquals("User 1 Foo Bar da Silva", this.entityManager.find(User.class, userId).getName());
+
+        // admin can update any user information
+        this.mvc.perform(patch("/users/"+ userId)
+                        .header("Authorization",adminAuthToken)
+                        .content(this.mapper.writeValueAsString(Map.of("name", "User 1 -- edited by admin")))
+                        .contentType(MediaType.APPLICATION_JSON))
+                        .andExpect(status().isNoContent());         
+                        
+        this.mvc.perform(patch("/users/"+ user2Id)
+                        .header("Authorization",adminAuthToken)
+                        .content(this.mapper.writeValueAsString(Map.of("name", "User 2 -- edited by admin")))
+                        .contentType(MediaType.APPLICATION_JSON))
+                        .andExpect(status().isNoContent());                          
+
+        assertEquals("User 1 -- edited by admin", this.entityManager.find(User.class, userId).getName());
+        assertEquals("User 2 -- edited by admin", this.entityManager.find(User.class, user2Id).getName());
     }
 }
