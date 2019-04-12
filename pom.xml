@@ -10,9 +10,9 @@
 		<!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.lucassimao</groupId>
-	<artifactId>fluxo-de-caixa</artifactId>
-	<version>0.6.2</version>
-	<name>fluxo-de-caixa</name>
+	<artifactId>cash-flow</artifactId>
+	<version>1.0.0</version>
+	<name>cash-flow</name>
 	<description>Cash flow - Springboot backend </description>
 
 	<properties>
@@ -94,6 +94,9 @@
 	</dependencies>
 
 	<build>
+        <finalName>
+            cashflow
+        </finalName>
 		<pluginManagement>
 			<plugins>
 				<plugin>

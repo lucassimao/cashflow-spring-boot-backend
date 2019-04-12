@@ -1,0 +1,14 @@
+upstream backend {
+    server ${BACKEND_1}:8080;
+    server ${BACKEND_2}:8080;
+    server ${BACKEND_3}:8080;
+}
+
+server {
+    listen 80;
+
+    location / {
+        proxy_pass http://backend;
+        add_header "X-Upstream-Addr" $upstream_addr;
+    }
+}
