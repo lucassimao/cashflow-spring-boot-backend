@@ -157,12 +157,20 @@ public class BookEntryRepositoryTests {
 
     @Test
     public void user1CanDeleteHisOwnBookEntryGroups() throws JsonProcessingException, Exception {
-        // user #1 can delete BookEntry registered by himself
-        mvc.perform(delete("/bookEntryGroups/"+ this.bookEntry1.getId())
+        // user #1 can delete BookEntry and BookEntryGroups registered by himself
+        mvc.perform(delete("/bookEntries/"+ this.bookEntry1.getId())
             .header("Authorization", firstUserToken))
             .andExpect(status().isNoContent());
 
-        // user #1 can't delete BookEntry registered by user #2
+        mvc.perform(delete("/bookEntryGroups/"+ this.bookEntry1.getBookEntryGroup().getId() )
+            .header("Authorization", firstUserToken))
+            .andExpect(status().isNoContent());
+
+        // user #1 can't delete BookEntry and BookEntryGroups registered by user #2
+        mvc.perform(delete("/bookEntries/"+ this.bookEntry2.getId())
+            .header("Authorization", firstUserToken))
+            .andExpect(status().isNotFound());
+
         mvc.perform(delete("/bookEntryGroups/"+ this.bookEntry2.getId())
             .header("Authorization", firstUserToken))
             .andExpect(status().isNotFound());   
@@ -170,13 +178,21 @@ public class BookEntryRepositoryTests {
 
     @Test
     public void user2CanDeleteHisOwnBookEntryGroups() throws JsonProcessingException, Exception {
-        // user #2 can delete BookEntry registered by himself
-        mvc.perform(delete("/bookEntryGroups/"+ this.bookEntry2.getId())
+        // user #2 can delete BookEntry and BookEntryGroups registered by himself
+        mvc.perform(delete("/bookEntries/"+ this.bookEntry2.getId())
             .header("Authorization", secondUserToken))
             .andExpect(status().isNoContent());
 
-        // user #2 can't delete BookEntry registered by user #1
-        mvc.perform(delete("/bookEntryGroups/"+ this.bookEntry1.getId())
+        mvc.perform(delete("/bookEntryGroups/"+ this.bookEntry2.getBookEntryGroup().getId())
+            .header("Authorization", secondUserToken))
+            .andExpect(status().isNoContent());
+
+        // user #2 can't delete BookEntry  and BookEntryGroups registered by user #1
+        mvc.perform(delete("/bookEntries/"+ this.bookEntry1.getId())
+            .header("Authorization", secondUserToken))
+            .andExpect(status().isNotFound());
+
+        mvc.perform(delete("/bookEntryGroups/"+ this.bookEntry1.getBookEntryGroup().getId())
             .header("Authorization", secondUserToken))
             .andExpect(status().isNotFound());   
     }    
