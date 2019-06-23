@@ -32,6 +32,8 @@ in a webapp, using spring boot to implement the microservice on the backend and 
 
 ## How to run in production mode
 	mvn -Dspring-boot.run.profiles=production spring-boot:run
+## How to run the integration tests
+    mvn -Dspring.profiles.active=integrationtest test
 
 ## Scope and TODO
 1. CRUD of Book entries groups **[done]**

@@ -21,20 +21,19 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.format.annotation.DateTimeFormat.ISO;
 
 @RepositoryRestResource(collectionResourceRel = "bookEntries", path = "bookEntries")
-public interface BookEntryRepository extends PagingAndSortingRepository<BookEntry,Long>, TenantAwareRepository{
+public interface BookEntryRepository extends PagingAndSortingRepository<BookEntry, Long>, TenantAwareRepository {
 
     @Query("SELECT b FROM BookEntry b WHERE b.id = ?1")
     Optional<BookEntry> findById(Long id);
 
-    @Query("SELECT b FROM BookEntry b WHERE b.bookEntryGroup=:group AND DATE(b.date) between DATE(:start) and DATE(:end) order by b.date desc")
-    @QueryHints({@QueryHint(name="org.hibernate.cacheable", value="true")})
+    @Query("SELECT b FROM BookEntry b WHERE b.bookEntryGroup=:group AND CAST(b.date as date) between CAST(:start AS date) and CAST(:end AS date) order by b.date desc")
+    @QueryHints({ @QueryHint(name = "org.hibernate.cacheable", value = "true") })
     @RestResource(exported = false)
-    List<BookEntry> findAllForGoal(@Param("start") ZonedDateTime start,  
-                                    @Param("end") ZonedDateTime end, @Param("group") BookEntryGroup bookEntryGroup);   
-          
+    List<BookEntry> findAllForGoal(@Param("start") ZonedDateTime start, @Param("end") ZonedDateTime end,
+            @Param("group") BookEntryGroup bookEntryGroup);
 
-     @Query("SELECT b FROM BookEntry b WHERE :start is not null and :end is not null and DATE(b.date) between DATE(:start) and DATE(:end) order by b.date desc")
-     Page<BookEntry> findByInterval(@Param("start") @DateTimeFormat(iso=ISO.DATE_TIME) ZonedDateTime start, 
-                                @Param("end") @DateTimeFormat(iso=ISO.DATE_TIME) ZonedDateTime end, Pageable p);   
+    @Query("SELECT b FROM BookEntry b WHERE :start is not null and :end is not null and CAST(b.date AS date) between CAST(:start AS date) and CAST(:end AS date) order by b.date desc")
+    Page<BookEntry> findByInterval(@Param("start") @DateTimeFormat(iso = ISO.DATE_TIME) ZonedDateTime start,
+            @Param("end") @DateTimeFormat(iso = ISO.DATE_TIME) ZonedDateTime end, Pageable p);
 
 }
