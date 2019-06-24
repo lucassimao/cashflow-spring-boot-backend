@@ -1,4 +1,4 @@
-# Cash flow - Springboot backend 
+# Cash flow  
 This is a pet project for cash flow management whose goal is to practice microservices architecture development.
 The idea is to transform the excel spreadsheet found [here](https://luz.vc/planilhas-empresariais/planilha-de-fluxo-de-caixa-excel) 
 in a webapp, using spring boot to implement the microservice on the backend and Angular on the frontend
@@ -35,7 +35,7 @@ in a webapp, using spring boot to implement the microservice on the backend and 
 ## How to run the integration tests
     mvn -Dspring.profiles.active=integrationtest test
 
-## Scope and TODO
+## Tasks - Backend
 1. CRUD of Book entries groups **[done]**
 2. CRUD of Book entries ( expenses or incomes ) **[done]**
 3. Signup api, Login with JWT and Multitenancy : **[done]**
@@ -43,7 +43,16 @@ in a webapp, using spring boot to implement the microservice on the backend and 
    2. Signup api must be public
 4. Reports **[done]**
    1. Annual, monthly and Daily reports of income and expenses
-6.  Cash flow goals - to define income and expenses goals in order to compare with the real cash flow **[done]**
+5.  Cash flow goals - to define income and expenses goals in order to compare with the real cash flow **[done]**
+
+## Tasks - Frontend
+1. CRUD of Book entries groups
+2. CRUD of Book entries ( expenses or incomes )
+3.  Cash flow goals - to define income and expenses goals in order to compare with the real cash flow
+4. Reports
+   1. Annual, monthly and Daily reports of income and expenses
+5. Signup from 
+6. Login form
 
 
 ## Reference and articles ##
